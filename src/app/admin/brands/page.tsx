@@ -5,7 +5,7 @@ export default async function AdminBrandsPage() {
   const supabase = createServerClient()
   const { data: brands } = await supabase
     .from('brands')
-    .select('id, name, slug, country, logo_url, (models(count))')
+    .select('id, name, slug, country, logo_url')
     .order('name')
 
   return (
@@ -26,7 +26,6 @@ export default async function AdminBrandsPage() {
               <th className="text-left px-4 py-3 font-semibold text-gray-600">Ten hang</th>
               <th className="text-left px-4 py-3 font-semibold text-gray-600">Slug</th>
               <th className="text-left px-4 py-3 font-semibold text-gray-600">Quoc gia</th>
-              <th className="text-right px-4 py-3 font-semibold text-gray-600">So dong xe</th>
               <th className="text-right px-4 py-3 font-semibold text-gray-600">Thao tac</th>
             </tr>
           </thead>
@@ -41,7 +40,6 @@ export default async function AdminBrandsPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-500">{b.slug}</td>
                 <td className="px-4 py-3 text-gray-500">{b.country ?? '-'}</td>
-                <td className="px-4 py-3 text-right text-gray-700">{(b as any).models?.[0]?.count ?? 0}</td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/admin/brands/${b.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
                     Sua
