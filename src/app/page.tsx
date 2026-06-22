@@ -75,7 +75,7 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/o-to"
+              href="/xe-oto"
               className="bg-white text-red-600 font-semibold px-8 py-3 rounded-full hover:bg-red-50 transition"
             >
               Xe ô tô
@@ -94,7 +94,7 @@ export default async function HomePage() {
       <section className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Hãng ô tô</h2>
-          <Link href="/o-to" className="text-red-600 hover:underline text-sm">Xem tất cả →</Link>
+          <Link href="/xe-oto" className="text-red-600 hover:underline text-sm">Xem tất cả →</Link>
         </div>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-3">
           {carBrands.map((brand) => (
