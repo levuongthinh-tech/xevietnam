@@ -1,7 +1,7 @@
-import { Metadata } from 'next'
 import { createServerClient } from '@/lib/supabase'
 import ModelCard from '@/components/ModelCard'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Xe may - Bang gia va thong so',
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 
 async function getModels(brandSlug?: string) {
   const supabase = createServerClient()
-  let query = supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query = (supabase as any)
     .from('models')
     .select(`
       id, name, slug, thumbnail_url, engine_cc, segment,
@@ -21,11 +22,7 @@ async function getModels(brandSlug?: string) {
     .order('view_count', { ascending: false })
     .limit(100)
 
-  if (brandSlug) {
-    query = query.eq('brand.slug' as any, brandSlug)
-  }
-
-  const { data } = await query
+  const { data } = await (brandSlug ? query.eq('brand.slug', brandSlug) : query)
   const bikes = (data || []).filter((m: any) =>
     m.brand?.vehicle_type === 'bike' ||
     (m.brand?.vehicle_type === 'both' && m.segment === 'xe-may')
@@ -71,9 +68,7 @@ export default async function XeMayPage({
         <div className="text-center py-16 text-gray-400">Khong co du lieu</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {models.map((model: any) => (
-            <ModelCard key={model.id} model={model} />
-          ))}
+          {models.map((model: any) => <ModelCard key={model.id} model={model} />)}
         </div>
       )}
     </div>
