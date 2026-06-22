@@ -4,20 +4,22 @@ import { supabase, formatPriceRange } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
   const { data } = await supabase
     .from('models')
     .select('name, brand:brands(name)')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
   if (!data) return { title: 'Xe khong tim thay' }
   return { title: `${(data.brand as any)?.name} ${data.name} - XeVietnam.vn` }
 }
 
 export default async function XeDetailPage({ params }: Props) {
+  const { slug } = await params
   const { data: model } = await supabase
     .from('models')
     .select(`
@@ -25,7 +27,7 @@ export default async function XeDetailPage({ params }: Props) {
       brand:brands(name, slug, country),
       versions(id, name, price_history(price_min, price_max, price_raw, recorded_at))
     `)
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (!model) notFound()
@@ -137,4 +139,4 @@ export default async function XeDetailPage({ params }: Props) {
       )}
     </div>
   )
-}
+            }
