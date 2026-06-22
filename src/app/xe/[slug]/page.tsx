@@ -42,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const model = await getModel(slug)
   if (!model) return { title: 'Không tìm thấy xe' }
 
-  const specs = model.specs as any
+  let specs = model.specs as any
+  if (typeof specs === 'string') { try { specs = JSON.parse(specs) } catch { specs = null } }
   const price = specs?.price_min ? formatPriceRange(specs.price_min, specs.price_max) : null
 
   return {
@@ -57,7 +58,8 @@ export default async function ModelDetailPage({ params }: Props) {
   if (!model) notFound()
 
   const similarModels = await getSimilarModels(model.brand_id, slug)
-  const specs = model.specs as any
+  let specs = model.specs as any
+  if (typeof specs === 'string') { try { specs = JSON.parse(specs) } catch { specs = null } }
   const priceMin = specs?.price_min ?? null
   const priceMax = specs?.price_max ?? null
 
@@ -209,7 +211,8 @@ export default async function ModelDetailPage({ params }: Props) {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Xe cùng hãng</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {similarModels.map((m: any) => {
-              const ms = m.specs as any
+              let ms = m.specs as any
+              if (typeof ms === 'string') { try { ms = JSON.parse(ms) } catch { ms = null } }
               return (
                 <Link
                   key={m.id}
