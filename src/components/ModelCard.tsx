@@ -13,7 +13,8 @@ interface ModelCardProps {
 }
 
 export default function ModelCard({ model }: ModelCardProps) {
-  const specs = model.specs as any
+  let specs = model.specs as any
+  if (typeof specs === 'string') { try { specs = JSON.parse(specs) } catch { specs = null } }
   const priceStr = formatPriceRange(specs?.price_min ?? null, specs?.price_max ?? null)
 
   return (
