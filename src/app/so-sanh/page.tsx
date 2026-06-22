@@ -49,8 +49,14 @@ export default function SoSanhPage() {
     ).slice(0, 10)
   }
 
+  function parseSpecs(model: any) {
+    let sp = model?.specs
+    if (typeof sp === 'string') { try { sp = JSON.parse(sp) } catch { sp = null } }
+    return sp
+  }
+
   function getPrice(model: any) {
-    const sp = model?.specs as any
+    const sp = parseSpecs(model)
     return sp?.price_min ? formatPriceRange(sp.price_min, sp.price_max) : 'Liên hệ'
   }
 
@@ -141,16 +147,18 @@ export default function SoSanhPage() {
           })}
           {/* Thông số từ specs JSONB */}
           {(() => {
+            const sp0 = parseSpecs(selected[0]) || {}
+            const sp1 = parseSpecs(selected[1]) || {}
             const PRICE_KEYS = new Set(['price_min', 'price_max', 'price_raw'])
             const allKeys = new Set([
-              ...Object.keys(selected[0].specs || {}),
-              ...Object.keys(selected[1].specs || {}),
+              ...Object.keys(sp0),
+              ...Object.keys(sp1),
             ].filter(k => !PRICE_KEYS.has(k)))
             return Array.from(allKeys).map(k => (
               <div key={k} className="grid grid-cols-3 px-4 py-3 border-b last:border-0 text-sm hover:bg-gray-50">
                 <span className="text-gray-500">{k}</span>
-                <span className="text-center">{selected[0].specs?.[k] || '-'}</span>
-                <span className="text-center">{selected[1].specs?.[k] || '-'}</span>
+                <span className="text-center">{sp0[k] || '-'}</span>
+                <span className="text-center">{sp1[k] || '-'}</span>
               </div>
             ))
           })()}
