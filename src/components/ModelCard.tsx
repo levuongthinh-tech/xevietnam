@@ -8,13 +8,13 @@ interface ModelCardProps {
     slug: string
     thumbnail_url?: string | null
     brand?: { name: string; slug: string } | null
-    versions?: { price_history: { price_min: number | null; price_max: number | null }[] }[]
+    specs?: { price_min?: number | null; price_max?: number | null } | null
   }
 }
 
 export default function ModelCard({ model }: ModelCardProps) {
-  const ph = model.versions?.[0]?.price_history?.[0]
-  const priceStr = ph ? formatPriceRange(ph.price_min, ph.price_max) : 'Liên hệ'
+  const specs = model.specs as any
+  const priceStr = formatPriceRange(specs?.price_min ?? null, specs?.price_max ?? null)
 
   return (
     <Link
