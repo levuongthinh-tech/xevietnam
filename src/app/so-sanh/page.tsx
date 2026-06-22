@@ -15,8 +15,7 @@ export default function SoSanhPage() {
       .from('models')
       .select(`
         id, name, slug, thumbnail_url, seats, fuel_type, engine_cc, origin, specs,
-        brand:brands(name, slug),
-        versions(price_history(price_min, price_max, price_raw))
+        brand:brands(name, slug)
       `)
       .eq('is_active', true)
       .order('view_count', { ascending: false })
@@ -51,8 +50,8 @@ export default function SoSanhPage() {
   }
 
   function getPrice(model: any) {
-    const ph = model?.versions?.[0]?.price_history?.[0]
-    return ph ? formatPriceRange(ph.price_min, ph.price_max) : 'Liên hệ'
+    const sp = model?.specs as any
+    return sp?.price_min ? formatPriceRange(sp.price_min, sp.price_max) : 'Liên hệ'
   }
 
   const specs = [
@@ -142,10 +141,11 @@ export default function SoSanhPage() {
           })}
           {/* Thông số từ specs JSONB */}
           {(() => {
+            const PRICE_KEYS = new Set(['price_min', 'price_max', 'price_raw'])
             const allKeys = new Set([
               ...Object.keys(selected[0].specs || {}),
               ...Object.keys(selected[1].specs || {}),
-            ])
+            ].filter(k => !PRICE_KEYS.has(k)))
             return Array.from(allKeys).map(k => (
               <div key={k} className="grid grid-cols-3 px-4 py-3 border-b last:border-0 text-sm hover:bg-gray-50">
                 <span className="text-gray-500">{k}</span>
@@ -160,7 +160,7 @@ export default function SoSanhPage() {
       {!selected[0] && !selected[1] && !loading && (
         <div className="text-center py-12 text-gray-400">
           <p className="text-5xl mb-4">⚖️</p>
-          <p>Tìm và chọn 2 dòng xe để bết đầu so sánh</p>
+          <p>Tìm và chọn 2 dòng xe để bắt đầu so sánh</p>
         </div>
       )}
     </div>
