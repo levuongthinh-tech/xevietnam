@@ -1,35 +1,12 @@
 import Link from 'next/link'
 import { supabase, formatPriceRange } from '@/lib/supabase'
-import type { Model } from '@/lib/supabase'
-
-async function getFeaturedModels() {
-  const { data } = await supabase
-    .from('models')
-    .select(`
-      *,
-      brand:brands(name, slug, logo_url),
-      versions(
-        id,
-        price_history(price_min, price_max, price_raw)
-      )
-    `)
-    .eq('is_active', true)
-    .eq('is_featured', true)
-    .limit(6)
-
-  return data || []
-}
 
 async function getPopularModels() {
   const { data } = await supabase
     .from('models')
     .select(`
-      *,
-      brand:brands(name, slug),
-      versions(
-        id,
-        price_history(price_min, price_max, price_raw)
-      )
+      id, name, slug, thumbnail_url, specs,
+      brand:brands(name, slug)
     `)
     .eq('is_active', true)
     .order('view_count', { ascending: false })
@@ -50,9 +27,10 @@ async function getBrands(type: 'car' | 'bike') {
   return data || []
 }
 
-function getModelPrice(model: Model & { versions?: { price_history: { price_min: number | null; price_max: number | null; price_raw: string | null }[] }[] }) {
-  const ph = model.versions?.[0]?.price_history?.[0]
-  return ph ? formatPriceRange(ph.price_min, ph.price_max) : 'Liên hệ'
+function getModelPrice(model: any) {
+  let sp = model?.specs
+  if (typeof sp === 'string') { try { sp = JSON.parse(sp) } catch { sp = null } }
+  return sp?.price_min ? formatPriceRange(sp.price_min, sp.price_max) : 'Liên hệ'
 }
 
 export default async function HomePage() {
@@ -75,7 +53,7 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/xe-oto"
+              href="/o-to"
               className="bg-white text-red-600 font-semibold px-8 py-3 rounded-full hover:bg-red-50 transition"
             >
               Xe ô tô
@@ -94,10 +72,10 @@ export default async function HomePage() {
       <section className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Hãng ô tô</h2>
-          <Link href="/xe-oto" className="text-red-600 hover:underline text-sm">Xem tất cả →</Link>
+          <Link href="/o-to" className="text-red-600 hover:underline text-sm">Xem tất cả →</Link>
         </div>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-3">
-          {carBrands.map((brand) => (
+          {carBrands.map((brand: any) => (
             <Link
               key={brand.id}
               href={`/hang/${brand.slug}`}
@@ -121,7 +99,7 @@ export default async function HomePage() {
           <Link href="/xe-may" className="text-red-600 hover:underline text-sm">Xem tất cả →</Link>
         </div>
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-3">
-          {bikeBrands.map((brand) => (
+          {bikeBrands.map((brand: any) => (
             <Link
               key={brand.id}
               href={`/hang/${brand.slug}`}
