@@ -22,14 +22,12 @@ async function getBrandModels(brandId: number) {
   const { data } = await supabase
     .from('models')
     .select(`
-      id, name, slug, thumbnail_url,
-      brand:brands(name, slug),
-      versions(price_history(price_min, price_max))
+      id, name, slug, thumbnail_url, specs,
+      brand:brands(name, slug)
     `)
     .eq('brand_id', brandId)
     .eq('is_active', true)
     .order('view_count', { ascending: false })
-
   return data || []
 }
 
@@ -57,28 +55,23 @@ export default async function BrandPage({ params }: Props) {
         <span>›</span>
         <span className="text-gray-900">{brand.name}</span>
       </nav>
-
       <div className="flex items-center gap-4 mb-8">
-        <div className="w5-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-2xl font-bold text-gray-400">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-2xl font-bold text-gray-400">
           {brand.name.substring(0, 2).toUpperCase()}
         </div>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{brand.name}</h1>
           {brand.country && (
-            <p className="text-gray-500 text-sm mt-1">Xuất xỉ: {brand.country}</p>
+            <p className="text-gray-500 text-sm mt-1">Xuất xứ: {brand.country}</p>
           )}
         </div>
       </div>
-
       <p className="text-gray-500 mb-6">{models.length} dòng xe</p>
-
       {models.length === 0 ? (
         <div className="text-center py-16 text-gray-400">Chưa có dữ liệu xe</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {models.map((model: any) => (
-            <ModelCard key={model.id} model={model} />
-          ))}
+          {models.map((model: any) => (<ModelCard key={model.id} model={model} />))}
         </div>
       )}
     </div>
