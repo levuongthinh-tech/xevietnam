@@ -19,7 +19,7 @@ export default function Header() {
 
         {/* Nav desktop */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/xe-oto" className="hover:text-red-600 transition">Ô tô</Link>
+          <Link href="/o-to" className="hover:text-red-600 transition">Ô tô</Link>
           <Link href="/xe-may" className="hover:text-red-600 transition">Xe máy</Link>
           <Link href="/so-sanh" className="hover:text-red-600 transition">So sánh</Link>
           <Link href="/tu-van" className="bg-red-600 text-white px-4 py-1.5 rounded-full hover:bg-red-700 transition">
@@ -45,7 +45,7 @@ export default function Header() {
       {/* Mobile nav */}
       {open && (
         <div className="md:hidden border-t bg-white px-4 py-3 flex flex-col gap-3 text-sm font-medium">
-          <Link href="/xe-oto" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Ô tô</Link>
+          <Link href="/o-to" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Ô tô</Link>
           <Link href="/xe-may" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Xe máy</Link>
           <Link href="/so-sanh" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">So sánh xe</Link>
           <Link href="/tu-van" onClick={() => setOpen(false)} className="text-red-600 font-semibold">Tư vấn AI</Link>
