@@ -71,7 +71,7 @@ export default async function HomePage() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm text-gray-300 mb-6">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              Dữ liệu được cập nhật từ VnExpress V-Car & V-Bike
+              Dữ liệu xe Việt Nam cập nhật liên tục
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold mb-5 leading-tight">
