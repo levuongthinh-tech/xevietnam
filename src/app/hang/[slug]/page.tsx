@@ -2,7 +2,6 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient, formatPriceRange } from '@/lib/supabase'
 import Link from 'next/link'
-import Image from 'next/image'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -48,17 +47,39 @@ function getPrice(specs: any) {
 function specCount(specs: any) {
   const s = parseSpecs(specs)
   if (!s) return 0
-  return Object.keys(s).filter(k => !['price_min','price_max','price_raw'].includes(k)).length
+  return Object.keys(s).filter(k => !['price_min', 'price_max', 'price_raw'].includes(k)).length
+}
+
+function getEVRange(specs: any): string | null {
+  const s = parseSpecs(specs)
+  if (!s) return null
+  const key = Object.keys(s).find(k =>
+    k.toLowerCase().includes('hÃ nh trÃ¬nh') ||
+    k.toLowerCase().includes('pháº¡m vi') ||
+    k.toLowerCase().includes('quÃ£ng ÄÆ°á»ng') ||
+    k.toLowerCase().includes('range')
+  )
+  return key ? s[key] : null
 }
 
 function getFuelBadge(specs: any, fuelType: string | null) {
   const s = parseSpecs(specs)
   const fuel = (s?.['Loáº¡i nhiÃªn liá»u'] || fuelType || '').toLowerCase()
-  if (fuel.includes('Äiá»n') || fuel.includes('electric')) return { label: 'Äiá»n', color: 'bg-green-100 text-green-700' }
-  if (fuel.includes('hybrid') || fuel.includes('lai')) return { label: 'Hybrid', color: 'bg-blue-100 text-blue-700' }
-  if (fuel.includes('xÄng') || fuel.includes('petrol') || fuel.includes('gasoline')) return { label: 'XÄng', color: 'bg-orange-100 text-orange-700' }
-  if (fuel.includes('dáº§u') || fuel.includes('diesel')) return { label: 'Dáº§u', color: 'bg-gray-100 text-gray-600' }
+  if (fuel.includes('Äiá»n') || fuel.includes('electric')) return { label: 'â¡ Äiá»n', color: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' }
+  if (fuel.includes('hybrid') || fuel.includes('lai')) return { label: 'ð Hybrid', color: 'bg-blue-500/15 text-blue-400 border border-blue-500/25' }
+  if (fuel.includes('xÄng') || fuel.includes('petrol') || fuel.includes('gasoline')) return { label: 'XÄng', color: 'bg-orange-500/15 text-orange-400 border border-orange-500/25' }
+  if (fuel.includes('dáº§u') || fuel.includes('diesel')) return { label: 'Dáº§u', color: 'bg-gray-500/15 text-gray-400 border border-gray-500/25' }
   return null
+}
+
+function fmtPrice(n: number | null): string {
+  if (!n) return 'â'
+  if (n >= 1e9) {
+    const ty = Math.floor(n / 1e9)
+    const tr = Math.round((n % 1e9) / 1e6)
+    return tr > 0 ? `${ty} tá»· ${tr}tr` : `${ty} tá»·`
+  }
+  return `${Math.round(n / 1e6)}tr`
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -68,7 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const type = brand.vehicle_type === 'bike' ? 'xe mÃ¡y' : 'Ã´ tÃ´'
   return {
     title: `${brand.name} - Báº£ng giÃ¡ ${type} vÃ  thÃ´ng sá» ká»¹ thuáº­t 2025`,
-    description: `ToÃ n bá» dÃ²ng ${type} ${brand.name} táº¡i Viá»t Nam: giÃ¡ niÃªm yáº¿t, thÃ´ng sá» ká»¹ thuáº­t, so sÃ¡nh vÃ  tÆ° váº¥n AI.`,
+    description: `ToÃ n bá» dÃ²ng ${type} ${brand.name} táº¡i Viá»t Nam: giÃ¡ niÃªm yeáº¿t, thÃ´ng sá» ká»¹ thuáº­t, so sÃ¡nh vÃ  tÆ° váº¥n AI.`,
   }
 }
 
@@ -79,164 +100,195 @@ export default async function BrandPage({ params }: Props) {
 
   const models = await getBrandModels(brand.id)
 
-  const isEV = brand.name === 'VinFast' || models.every(m => {
-    const s = parseSpecs(m.specs)
-    return (s?.['Loáº¡i nhiÃªn liá»u'] || '').toLowerCase().includes('Äiá»n')
-  })
-
-  // Stats
   const withPrice = models.filter(m => getPrice(m.specs).min)
   const prices = withPrice.map(m => getPrice(m.specs).min as number)
   const minPrice = prices.length ? Math.min(...prices) : null
-  const maxPrice = prices.length ? Math.max(...prices) : null
   const withSpecs = models.filter(m => specCount(m.specs) > 3)
 
-  const isVietnamese = brand.country === 'Viá»t Nam' || brand.name === 'VinFast'
   const isCar = brand.vehicle_type === 'car'
+  const isVietnamese = brand.country === 'Viá»t Nam' || brand.name === 'VinFast'
+  const isEVBrand = ['VinFast', 'BYD', 'Aion', 'Yadea'].includes(brand.name)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950 text-white">
 
-      {/* Hero */}
-      <section className={`relative overflow-hidden ${isVietnamese ? 'bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'} text-white`}>
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-red-600/8 rounded-full blur-3xl" />
+      {/* ââ HERO ââ */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {isEVBrand ? (
+            <>
+              <div className="absolute -top-32 right-0 w-[500px] h-[500px] bg-emerald-500 rounded-full blur-[140px] opacity-[0.10]" />
+              <div className="absolute top-1/2 -left-32 w-[300px] h-[300px] bg-blue-600 rounded-full blur-[120px] opacity-[0.06]" />
+            </>
+          ) : (
+            <>
+              <div className="absolute -top-32 right-0 w-[500px] h-[500px] bg-blue-600 rounded-full blur-[140px] opacity-[0.10]" />
+              <div className="absolute bottom-0 -left-32 w-[300px] h-[300px] bg-indigo-700 rounded-full blur-[120px] opacity-[0.06]" />
+            </>
+          )}
+          <div className="absolute inset-0 opacity-[0.025]"
+            style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-12 relative">
-          {/* Breadcrumb */}
-          <nav className="text-sm text-gray-400 mb-8 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-white transition">Trang chá»§</Link>
-            <span>âº</span>
-            <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-white transition">
-              {isCar ? 'Xe Ã´ tÃ´' : 'Xe mÃ¡y'}
+        <div className="relative max-w-6xl mx-auto px-4 pt-6 pb-12">
+          <nav className="text-xs text-gray-600 mb-8 flex items-center gap-1.5">
+            <Link href="/" className="hover:text-gray-400 transition">Trang chiá»§</Link>
+            <span>/</span>
+            <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-gray-400 transition">
+              {isCar ? 'Xe Ã´ tÃ´' : 'Xe mÃ¡y' }
             </Link>
-            <span>âº</span>
-            <span className="text-white">{brand.name}</span>
+            <span>/</span>
+            <span className="text-gray-300">{brand.name}</span>
           </nav>
 
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            {/* Brand identity */}
-            <div className="flex items-center gap-5">
-              <div className="w-20 h-20 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm flex-shrink-0">
-                {brand.logo_url ? (
-                  <img src={brand.logo_url} alt={brand.name} className="w-14 h-14 object-contain" />
-                ) : (
-                  <span className="text-2xl font-black text-white">{brand.name.slice(0,2).toUpperCase()}</span>
+          <div className="flex flex-col lg:flex-row lg:items-end gap-8">
+            <div className="flex-1">
+              <div className="flex flex-wrap gap-2 mb-5">
+                {isVietnamese && (
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full font-medium">
+                    ð»ð³ ThÆ°Æ¡ng hiá»u Viá»t Nam
+                  </span>
+                )}
+                {isEVBrand && (
+                  <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full font-medium">
+                    â¡ 100% Xe Äiá»n
+                  </span>
                 )}
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-4xl font-black text-white">{brand.name}</h1>
-                  {isVietnamese && (
-                    <span className="text-xs bg-red-600 text-white px-2 py-0.5 rounded-full font-semibold">ð»ð³ Viá»t Nam</span>
+
+              <div className="flex items-center gap-5">
+                <div className={`w-[72px] h-[72px] flex-shrink-0 rounded-2xl flex items-center justify-center border ${isEVBrand ? 'bg-emerald-500/8 border-emerald-500/20' : 'bg-white/5 border-white/10'}`}>
+                  {brand.logo_url ? (
+                    <img src={brand.logo_url} alt={brand.name} className="w-12 h-12 object-contain" />
+                  ) : (
+                    <span className={`text-2xl font-black ${isEVBrand ? 'text-emerald-400' : 'text-blue-400'}`}>
+                      {brand.name.slice(0, 2).toUpperCase()}
+                    </span>
                   )}
                 </div>
-                <p className="text-gray-300 text-sm">
-                  {models.length} dÃ²ng {isCar ? 'Ã´ tÃ´' : 'xe mÃ¡y'}
-                  {brand.country && ` Â· Xuáº¥t xá»©: ${brand.country}`}
-                </p>
+                <div>
+                  <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-none">{brand.name}</h1>
+                  <p className="text-gray-500 text-sm mt-2">
+                    {brand.country && `${brand.country} Â· g}{models.length} dÃ²ng {isCar ? 'Ã´ tÃ´' : 'xe mÃ¡y'}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="md:ml-auto grid grid-cols-3 gap-3">
-              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-center">
-                <p className="text-2xl font-bold text-white">{models.length}</p>
-                <p className="text-xs text-gray-400 mt-0.5">DÃ²ng xe</p>
-              </div>
-              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-center">
-                <p className="text-2xl font-bold text-white">{withSpecs.length}</p>
-                <p className="text-xs text-gray-400 mt-0.5">CÃ³ thÃ´ng sá»</p>
-              </div>
-              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-center">
-                <p className="text-lg font-bold text-white leading-tight">
-                  {minPrice ? `${Math.round(minPrice / 1e9) > 0 ? (minPrice/1e9).toFixed(1)+'tá»·' : Math.round(minPrice/1e6)+'tr'}` : 'â'}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">Tá»« giÃ¡</p>
-              </div>
+            <div className="grid grid-cols-3 gap-2.5 lg:w-[320px]">
+              {[
+                { val: models.length.toString(), label: 'DÃ²ng xe', accent: false },
+                { val: withSpecs.length.toString(), label: 'CÃ³ thÃ´ng sá»', accent: false },
+                { val: fmtPrice(minPrice), label: 'Tá»« giÃ¡', accent: true },
+              ].map(({ val, label, accent }) => (
+                <div key={label} className={`rounded-xl px-3 py-3 text-center border ${accent && minPrice ? (isEVBrand ? 'bg-emerald-500/8 border-emerald-500/20' : 'bg-blue-500/8 border-blue-500/20') : 'bg-white/4 border-white/8'}`}>
+                  <p className={`text-lg font-bold leading-tight ${accent && minPrice ? (isEVBrand ? 'text-emerald-400' : 'text-blue-400') : 'text-white'}`}>{val}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* AI Advisor CTA */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="text-xl">ð¤</span>
-            <p className="text-sm font-medium">Cáº§n tÆ° váº¥n chá»n xe {brand.name}? AI phÃ¢n tÃ­ch theo ngÃ¢n sÃ¡ch & nhu cáº§u cá»§a báº¡n.</p>
+      {/* ââ AI STRIP ââ */}
+      <div className="border-y border-white/6 bg-blue-950/25">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm">ð¤</div>
+            <p className="text-sm text-gray-400 truncate">
+              AI tÆ° váº¥n xe <span className="text-white font-medium">{brand.name}</span> theo ngÃ¢n sÃ¡ch & nhu cáº§u cá»§a báº¡n
+            </p>
           </div>
           <Link
             href={`/tu-van?q=${encodeURIComponent(`TÆ° váº¥n xe ${brand.name} phÃ¹ há»£p cho tÃ´i`)}`}
-            className="bg-white text-blue-700 font-bold px-5 py-2 rounded-xl hover:bg-blue-50 transition text-sm whitespace-nowrap flex-shrink-0"
-          >
-            TÆ° váº¥n ngay â
+            className="flex-shrink-0 bg-blue-600 hover:bs-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap">
+            Há»i AI â
           </Link>
         </div>
-      </section>
+      </div>
 
-      {/* Models grid */}
+      {/* ââ MODEL GRID ~ââ */}
       <section className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">
-            Táº¥t cáº£ dÃ²ng xe {brand.name}
+          <h2 className="text-base font-bold text-white">
+            Táº¥t cáº£ dÃ²ng xe <span className={isEVBrand ? 'text-emerald-400' : 'text-blue-400'}>{brand.name}</span>
           </h2>
-          <span className="text-sm text-gray-400">{models.length} xe</span>
+          <span className="text-xs text-gray-600 bg-white/4 border border-white/8 px-2.5 py-1 rounded-full">{models.length} mæ¬éxe</span>
         </div>
 
         {models.length === 0 ? (
-          <div className="text-center py-24 text-gray-400">
+          <div className="text-center py-24 text-gray-700">
             <p className="text-4xl mb-4">ð</p>
             <p>ChÆ°a cÃ³ dá»¯ liá»u xe</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {models.map((model: any) => {
               const price = getPrice(model.specs)
               const cnt = specCount(model.specs)
               const fuel = getFuelBadge(model.specs, model.fuel_type)
+              const range = getEVRange(model.specs)
 
               return (
                 <Link
                   key={model.id}
                   href={`/xe/${model.slug}`}
-                  className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group flex flex-col"
+                  className={`group bg-gray-900 rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col ${isEVBrand
+                    ? 'border-white/6 hover:border-emerald-500/40 hover:shadow-[0_0_25px_rgba(52,211,153,0.07)]'
+                    : 'border-white/6 hover:border-blue-500/40 hover:shadow-[0_0_25px_rgba(59,130,246,0.07)]'
+                  }`}
                 >
                   {/* Image */}
-                  <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                  <div className="relative overflow-hidden bg-gray-800" style={{ aspectRatio: '4/3' }}>
                     {model.thumbnail_url ? (
                       <img
                         src={model.thumbnail_url}
                         alt={model.name}
-                        className="w-full h-44 object-cover group-hover:scale-105 transition duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                       />
                     ) : (
-                      <div className="w-full h-44 flex items-center justify-center">
-                        <span className="text-5xl opacity-20">ð</span>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-4xl opacity-10">{isCar ? 'ð' : 'ðï¸'}</span>
                       </div>
                     )}
-                    {fuel && (
-                      <span className={`absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full ${fuel.color}`}>
-                        {fuel.label}
-                      </span>
-                    )}
-                    {cnt > 0 && (
-                      <span className="absolute top-2 right-2 text-xs bg-black/60 text-white px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                        {cnt} TS
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-transparent to-transparent" />
+
+                    <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
+                      {fuel ? (
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${fuel.color}`}>
+                          {fuel.label}
+                        </span>
+                      ) : <span />}
+                      {cnt > 0 && (
+                        <span className="text-[11px] bg-black/50 text-gray-400 border border-white/10 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                          {cnt} TS
+                        </span>
+                      )}
+                    </div>
+
+                    {model.model_year && (
+                      <span className="absolute bottom-2 right-2 text-[11px] text-gray-400 bg-black/50 px-1.5 py-0.5 rounded backdrop-blur-sm">
+                        {model.model_year}
                       </span>
                     )}
                   </div>
 
                   {/* Info */}
-                  <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1">{model.name}</h3>
-                    {model.model_year && (
-                      <p className="text-xs text-gray-400 mb-2">{model.model_year}</p>
+                  <div className="p-3 flex flex-col flex-1">
+                    <h3 className={`font-semibold text-sm leading-snug transition-colors mb-1 ${isEVBrand ? 'text-gray-100 group-hover:text-emerald-400' : 'text-gray-100 group-hover:text-blue-400'}`}>
+                      {model.name}
+                    </h3>
+                    {range && (
+                      <p className="text-[11px] text-emerald-500 mb-1 flex items-center gap-1 truncate">
+                        <span>â¡</span><span className="truncate">{range}</span>
+                      </p>
                     )}
-                    <div className="mt-auto">
-                      <p className="text-red-600 font-bold text-sm">{price.str}</p>
+                    <div className="mt-auto pt-2 border-t border-white/5">
+                      <p className={`text-sm font-bold ${price.min ? (isEVBrand ? 'text-emerald-400' : 'text-blue-400') : 'text-gray-500'}`}>
+                        {price.str}
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -246,35 +298,32 @@ export default async function BrandPage({ params }: Props) {
         )}
       </section>
 
-      {/* Specs comparison teaser */}
-      {withSpecs.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 pb-12">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 text-white text-center relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
-            </div>
-            <div className="relative">
-              <p className="text-3xl mb-4">ð¤</p>
-              <h3 className="text-2xl font-bold mb-2">So sÃ¡nh thÃ´ng sá» ká»¹ thuáº­t</h3>
-              <p className="text-gray-300 mb-6 text-sm max-w-md mx-auto">
-                {withSpecs.length} dÃ²ng {brand.name} cÃ³ Äáº§y Äá»§ thÃ´ng sá». Há»i AI Äá» so sÃ¡nh chi tiáº¿t.
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                {models.slice(0, 4).map(m => (
-                  <Link
-                    key={m.id}
-                    href={`/xe/${m.slug}`}
-                    className="bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-1.5 text-sm text-gray-200 hover:text-white transition"
-                  >
-                    {m.name}
-                  </Link>
-                ))}
+      {/* ââ AI COMPARISON ââ */}
+      {withSpecs.length > 1 && (
+        <section className="max-w-6xl mx-auto px-4 pb-16">
+          <div className="relative overflow-hidden rounded-3xl border border-white/8 bg-gradient-to-br from-gray-900 to-slate-900 p-8">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6">
+              <div className="flex-1">
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">AI-Powered Analysis</p>
+                <h3 className="text-xl font-bold text-white mb-2">So sÃ¡nh thÃ´ng sá» ká»¹ thuáº­t</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  {withSpecs.length} dÃ²ng {brand.name} cÃ³ Äáº§y ôÄá» dá»¯ liá»u. Há»i AI Äá» so sÃ¡nh chi tiáº¿t vÃ  chá»n xe phÃ¹ há»£p nháº¥t.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {models.slice(0, 5).map((m: any) => (
+                    <Link href={`/xe/${m.slug}`} key={m.id}
+                      className="text-xs bg-white/5 hover:bg-white/8 border border-white/10 rounded-lg px-3 py-1.5 text-gray-400 hover:text-white transition">
+                      {m.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
               <Link
                 href={`/tu-van?q=${encodeURIComponent(`So sÃ¡nh cÃ¡c dÃ²ng xe ${brand.name} vá»i nhau`)}`}
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-2xl transition"
+                className="flex-shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition text-sm"
               >
-                So sÃ¡nh vá»i AI â
+                ð¤ So sÃ¡nh vá»i AI
               </Link>
             </div>
           </div>
