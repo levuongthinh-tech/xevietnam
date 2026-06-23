@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const type = brand.vehicle_type === 'bike' ? 'xe máy' : 'ô tô'
   return {
     title: `${brand.name} - Bảng giá ${type} và thông số kỹ thuật 2025`,
-    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yeết, thông số kỹ thuật, so sánh và tư vấn AI.`,
+    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yeết, thông số kỹ thuật, so sánh và tư vấn AI.`
   }
 }
 
@@ -136,7 +136,7 @@ export default async function BrandPage({ params }: Props) {
             <Link href="/" className="hover:text-gray-400 transition">Trang chủ</Link>
             <span>/</span>
             <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-gray-400 transition">
-              {isCar ? 'Xe ô tô' : 'Xe máy' }
+              {isCar ? 'Xe ô tô' : 'Xe máy'}
             </Link>
             <span>/</span>
             <span className="text-gray-300">{brand.name}</span>
@@ -170,7 +170,7 @@ export default async function BrandPage({ params }: Props) {
                 <div>
                   <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-none">{brand.name}</h1>
                   <p className="text-gray-500 text-sm mt-2">
-                    {brand.country && `${brand.country} · g}{models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
+                    {brand.country && `${brand.country} · ` {models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
                   </p>
                 </div>
               </div>
@@ -196,26 +196,27 @@ export default async function BrandPage({ params }: Props) {
       <div className="border-y border-white/6 bg-blue-950/25">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm">🤖</div>
+            <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm">🤖</div>
             <p className="text-sm text-gray-400 truncate">
               AI tư vấn xe <span className="text-white font-medium">{brand.name}</span> theo ngân sách & nhu cầu của bạn
             </p>
           </div>
           <Link
             href={`/tu-van?q=${encodeURIComponent(`Tư vấn xe ${brand.name} phù hợp cho tôi`)}`}
-            className="flex-shrink-0 bg-blue-600 hover:bs-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap">
+            className="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap"
+          >
             Hỏi AI →
           </Link>
         </div>
       </div>
 
-      {/* ── MODEL GRID ~── */}
+      {/* ── MODEL GRID ── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-base font-bold text-white">
             Tất cả dòng xe <span className={isEVBrand ? 'text-emerald-400' : 'text-blue-400'}>{brand.name}</span>
           </h2>
-          <span className="text-xs text-gray-600 bg-white/4 border border-white/8 px-2.5 py-1 rounded-full">{models.length} m��xe</span>
+          <span className="text-xs text-gray-600 bg-white/4 border border-white/8 px-2.5 py-1 rounded-full">{models.length} mẫu xe</span>
         </div>
 
         {models.length === 0 ? (
@@ -308,7 +309,7 @@ export default async function BrandPage({ params }: Props) {
                 <p className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">AI-Powered Analysis</p>
                 <h3 className="text-xl font-bold text-white mb-2">So sánh thông số kỹ thuật</h3>
                 <p className="text-gray-400 text-sm mb-4">
-                  {withSpecs.length} dòng {brand.name} có đầy để dữ liệu. Hỏi AI để so sánh chi tiết và chọn xe phù hợp nhất.
+                  {withSpecs.length} dòng {brand.name} có đầy đủ dữ liệu. Hỏi AI để so sánh chi tiết và chọn xe phù hợp nhất.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {models.slice(0, 5).map((m: any) => (
