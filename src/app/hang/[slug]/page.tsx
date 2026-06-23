@@ -170,7 +170,7 @@ export default async function BrandPage({ params }: Props) {
                 <div>
                   <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-none">{brand.name}</h1>
                   <p className="text-gray-500 text-sm mt-2">
-                    {brand.country && `${brand.country} · ` {models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
+                    {brand.country && `${brand.country} · `}{models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
                   </p>
                 </div>
               </div>
