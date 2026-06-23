@@ -38,7 +38,7 @@ export interface Model {
   type_id: number | null
   name: string
   slug: string
-  vne_id: number | null
+  xevietnam_id: number | null
   segment: string | null
   seats: number | null
   fuel_type: string | null
