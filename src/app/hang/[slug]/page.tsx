@@ -54,9 +54,9 @@ function getEVRange(specs: any): string | null {
   const s = parseSpecs(specs)
   if (!s) return null
   const key = Object.keys(s).find(k =>
-    k.toLowerCase().includes('hÃ nh trÃ¬nh') ||
-    k.toLowerCase().includes('pháº¡m vi') ||
-    k.toLowerCase().includes('quÃ£ng ÄÆ°á»ng') ||
+    k.toLowerCase().includes('hành trình') ||
+    k.toLowerCase().includes('phạm vi') ||
+    k.toLowerCase().includes('quãng đường') ||
     k.toLowerCase().includes('range')
   )
   return key ? s[key] : null
@@ -64,20 +64,20 @@ function getEVRange(specs: any): string | null {
 
 function getFuelBadge(specs: any, fuelType: string | null) {
   const s = parseSpecs(specs)
-  const fuel = (s?.['Loáº¡i nhiÃªn liá»u'] || fuelType || '').toLowerCase()
-  if (fuel.includes('Äiá»n') || fuel.includes('electric')) return { label: 'â¡ Äiá»n', color: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' }
-  if (fuel.includes('hybrid') || fuel.includes('lai')) return { label: 'ð Hybrid', color: 'bg-blue-500/15 text-blue-400 border border-blue-500/25' }
-  if (fuel.includes('xÄng') || fuel.includes('petrol') || fuel.includes('gasoline')) return { label: 'XÄng', color: 'bg-orange-500/15 text-orange-400 border border-orange-500/25' }
-  if (fuel.includes('dáº§u') || fuel.includes('diesel')) return { label: 'Dáº§u', color: 'bg-gray-500/15 text-gray-400 border border-gray-500/25' }
+  const fuel = (s?.['Loại nhiên liệu'] || fuelType || '').toLowerCase()
+  if (fuel.includes('điện') || fuel.includes('electric')) return { label: '⚡ Điện', color: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' }
+  if (fuel.includes('hybrid') || fuel.includes('lai')) return { label: '🔋 Hybrid', color: 'bg-blue-500/15 text-blue-400 border border-blue-500/25' }
+  if (fuel.includes('xăng') || fuel.includes('petrol') || fuel.includes('gasoline')) return { label: 'Xăng', color: 'bg-orange-500/15 text-orange-400 border border-orange-500/25' }
+  if (fuel.includes('dầu') || fuel.includes('diesel')) return { label: 'Dầu', color: 'bg-gray-500/15 text-gray-400 border border-gray-500/25' }
   return null
 }
 
 function fmtPrice(n: number | null): string {
-  if (!n) return 'â'
+  if (!n) return '—'
   if (n >= 1e9) {
     const ty = Math.floor(n / 1e9)
     const tr = Math.round((n % 1e9) / 1e6)
-    return tr > 0 ? `${ty} tá»· ${tr}tr` : `${ty} tá»·`
+    return tr > 0 ? `${ty} tỷ ${tr}tr` : `${ty} tỷ`
   }
   return `${Math.round(n / 1e6)}tr`
 }
@@ -85,11 +85,11 @@ function fmtPrice(n: number | null): string {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const brand = await getBrand(slug)
-  if (!brand) return { title: 'KhÃ´ng tÃ¬m tháº¥y hÃ£ng xe' }
-  const type = brand.vehicle_type === 'bike' ? 'xe mÃ¡y' : 'Ã´ tÃ´'
+  if (!brand) return { title: 'Không tìm thấy hãng xe' }
+  const type = brand.vehicle_type === 'bike' ? 'xe máy' : 'ô tô'
   return {
-    title: `${brand.name} - Báº£ng giÃ¡ ${type} vÃ  thÃ´ng sá» ká»¹ thuáº­t 2025`,
-    description: `ToÃ n bá» dÃ²ng ${type} ${brand.name} táº¡i Viá»t Nam: giÃ¡ niÃªm yeáº¿t, thÃ´ng sá» ká»¹ thuáº­t, so sÃ¡nh vÃ  tÆ° váº¥n AI.`,
+    title: `${brand.name} - Bảng giá ${type} và thông số kỹ thuật 2025`,
+    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yeết, thông số kỹ thuật, so sánh và tư vấn AI.`,
   }
 }
 
@@ -106,13 +106,13 @@ export default async function BrandPage({ params }: Props) {
   const withSpecs = models.filter(m => specCount(m.specs) > 3)
 
   const isCar = brand.vehicle_type === 'car'
-  const isVietnamese = brand.country === 'Viá»t Nam' || brand.name === 'VinFast'
+  const isVietnamese = brand.country === 'Việt Nam' || brand.name === 'VinFast'
   const isEVBrand = ['VinFast', 'BYD', 'Aion', 'Yadea'].includes(brand.name)
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
 
-      {/* ââ HERO ââ */}
+      {/* ── HERO ── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950" />
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -133,10 +133,10 @@ export default async function BrandPage({ params }: Props) {
 
         <div className="relative max-w-6xl mx-auto px-4 pt-6 pb-12">
           <nav className="text-xs text-gray-600 mb-8 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-gray-400 transition">Trang chiá»§</Link>
+            <Link href="/" className="hover:text-gray-400 transition">Trang chiủ</Link>
             <span>/</span>
             <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-gray-400 transition">
-              {isCar ? 'Xe Ã´ tÃ´' : 'Xe mÃ¡y' }
+              {isCar ? 'Xe ô tô' : 'Xe máy' }
             </Link>
             <span>/</span>
             <span className="text-gray-300">{brand.name}</span>
@@ -147,12 +147,12 @@ export default async function BrandPage({ params }: Props) {
               <div className="flex flex-wrap gap-2 mb-5">
                 {isVietnamese && (
                   <span className="inline-flex items-center gap-1.5 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full font-medium">
-                    ð»ð³ ThÆ°Æ¡ng hiá»u Viá»t Nam
+                    🇻🇳 Thương hiệu Việt Nam
                   </span>
                 )}
                 {isEVBrand && (
                   <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full font-medium">
-                    â¡ 100% Xe Äiá»n
+                    ⚡ 100% Xe điện
                   </span>
                 )}
               </div>
@@ -170,7 +170,7 @@ export default async function BrandPage({ params }: Props) {
                 <div>
                   <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-none">{brand.name}</h1>
                   <p className="text-gray-500 text-sm mt-2">
-                    {brand.country && `${brand.country} Â· g}{models.length} dÃ²ng {isCar ? 'Ã´ tÃ´' : 'xe mÃ¡y'}
+                    {brand.country && `${brand.country} · g}{models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
                   </p>
                 </div>
               </div>
@@ -178,9 +178,9 @@ export default async function BrandPage({ params }: Props) {
 
             <div className="grid grid-cols-3 gap-2.5 lg:w-[320px]">
               {[
-                { val: models.length.toString(), label: 'DÃ²ng xe', accent: false },
-                { val: withSpecs.length.toString(), label: 'CÃ³ thÃ´ng sá»', accent: false },
-                { val: fmtPrice(minPrice), label: 'Tá»« giÃ¡', accent: true },
+                { val: models.length.toString(), label: 'Dòng xe', accent: false },
+                { val: withSpecs.length.toString(), label: 'Có thông số', accent: false },
+                { val: fmtPrice(minPrice), label: 'Từ giá', accent: true },
               ].map(({ val, label, accent }) => (
                 <div key={label} className={`rounded-xl px-3 py-3 text-center border ${accent && minPrice ? (isEVBrand ? 'bg-emerald-500/8 border-emerald-500/20' : 'bg-blue-500/8 border-blue-500/20') : 'bg-white/4 border-white/8'}`}>
                   <p className={`text-lg font-bold leading-tight ${accent && minPrice ? (isEVBrand ? 'text-emerald-400' : 'text-blue-400') : 'text-white'}`}>{val}</p>
@@ -192,36 +192,36 @@ export default async function BrandPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ââ AI STRIP ââ */}
+      {/* ── AI STRIP ── */}
       <div className="border-y border-white/6 bg-blue-950/25">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm">ð¤</div>
+            <div className="w7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm">🤖</div>
             <p className="text-sm text-gray-400 truncate">
-              AI tÆ° váº¥n xe <span className="text-white font-medium">{brand.name}</span> theo ngÃ¢n sÃ¡ch & nhu cáº§u cá»§a báº¡n
+              AI tư vấn xe <span className="text-white font-medium">{brand.name}</span> theo ngân sách & nhu cầu của bạn
             </p>
           </div>
           <Link
-            href={`/tu-van?q=${encodeURIComponent(`TÆ° váº¥n xe ${brand.name} phÃ¹ há»£p cho tÃ´i`)}`}
+            href={`/tu-van?q=${encodeURIComponent(`Tư vấn xe ${brand.name} phù hợp cho tôi`)}`}
             className="flex-shrink-0 bg-blue-600 hover:bs-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap">
-            Há»i AI â
+            Hỏi AI →
           </Link>
         </div>
       </div>
 
-      {/* ââ MODEL GRID ~ââ */}
+      {/* ── MODEL GRID ~── */}
       <section className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-base font-bold text-white">
-            Táº¥t cáº£ dÃ²ng xe <span className={isEVBrand ? 'text-emerald-400' : 'text-blue-400'}>{brand.name}</span>
+            Tất cả dòng xe <span className={isEVBrand ? 'text-emerald-400' : 'text-blue-400'}>{brand.name}</span>
           </h2>
-          <span className="text-xs text-gray-600 bg-white/4 border border-white/8 px-2.5 py-1 rounded-full">{models.length} mæ¬éxe</span>
+          <span className="text-xs text-gray-600 bg-white/4 border border-white/8 px-2.5 py-1 rounded-full">{models.length} m��xe</span>
         </div>
 
         {models.length === 0 ? (
           <div className="text-center py-24 text-gray-700">
-            <p className="text-4xl mb-4">ð</p>
-            <p>ChÆ°a cÃ³ dá»¯ liá»u xe</p>
+            <p className="text-4xl mb-4">🚗</p>
+            <p>Chưa có dữ liệu xe</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -250,7 +250,7 @@ export default async function BrandPage({ params }: Props) {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-4xl opacity-10">{isCar ? 'ð' : 'ðï¸'}</span>
+                        <span className="text-4xl opacity-10">{isCar ? '🚗' : '🏍️'}</span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-transparent to-transparent" />
@@ -282,7 +282,7 @@ export default async function BrandPage({ params }: Props) {
                     </h3>
                     {range && (
                       <p className="text-[11px] text-emerald-500 mb-1 flex items-center gap-1 truncate">
-                        <span>â¡</span><span className="truncate">{range}</span>
+                        <span>⚡</span><span className="truncate">{range}</span>
                       </p>
                     )}
                     <div className="mt-auto pt-2 border-t border-white/5">
@@ -298,7 +298,7 @@ export default async function BrandPage({ params }: Props) {
         )}
       </section>
 
-      {/* ââ AI COMPARISON ââ */}
+      {/* ── AI COMPARISON ── */}
       {withSpecs.length > 1 && (
         <section className="max-w-6xl mx-auto px-4 pb-16">
           <div className="relative overflow-hidden rounded-3xl border border-white/8 bg-gradient-to-br from-gray-900 to-slate-900 p-8">
@@ -306,13 +306,13 @@ export default async function BrandPage({ params }: Props) {
             <div className="relative flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="flex-1">
                 <p className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">AI-Powered Analysis</p>
-                <h3 className="text-xl font-bold text-white mb-2">So sÃ¡nh thÃ´ng sá» ká»¹ thuáº­t</h3>
+                <h3 className="text-xl font-bold text-white mb-2">So sánh thông số kỹ thuật</h3>
                 <p className="text-gray-400 text-sm mb-4">
-                  {withSpecs.length} dÃ²ng {brand.name} cÃ³ Äáº§y ôÄá» dá»¯ liá»u. Há»i AI Äá» so sÃ¡nh chi tiáº¿t vÃ  chá»n xe phÃ¹ há»£p nháº¥t.
+                  {withSpecs.length} dòng {brand.name} có đầy để dữ liệu. Hỏi AI để so sánh chi tiết và chọn xe phù hợp nhất.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {models.slice(0, 5).map((m: any) => (
-                    <Link href={`/xe/${m.slug}`} key={m.id}
+                    <Link key={m.id} href={`/xe/${m.slug}`}
                       className="text-xs bg-white/5 hover:bg-white/8 border border-white/10 rounded-lg px-3 py-1.5 text-gray-400 hover:text-white transition">
                       {m.name}
                     </Link>
@@ -320,10 +320,10 @@ export default async function BrandPage({ params }: Props) {
                 </div>
               </div>
               <Link
-                href={`/tu-van?q=${encodeURIComponent(`So sÃ¡nh cÃ¡c dÃ²ng xe ${brand.name} vá»i nhau`)}`}
+                href={`/tu-van?q=${encodeURIComponent(`So sánh các dòng xe ${brand.name} với nhau`)}`}
                 className="flex-shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition text-sm"
               >
-                ð¤ So sÃ¡nh vá»i AI
+                🤖 So sánh với AI
               </Link>
             </div>
           </div>
