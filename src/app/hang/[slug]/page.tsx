@@ -133,7 +133,7 @@ export default async function BrandPage({ params }: Props) {
 
         <div className="relative max-w-6xl mx-auto px-4 pt-6 pb-12">
           <nav className="text-xs text-gray-600 mb-8 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-gray-400 transition">Trang chiủ</Link>
+            <Link href="/" className="hover:text-gray-400 transition">Trang chủ</Link>
             <span>/</span>
             <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-gray-400 transition">
               {isCar ? 'Xe ô tô' : 'Xe máy' }
