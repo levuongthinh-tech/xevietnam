@@ -7,14 +7,16 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 // Extract price range from Vietnamese text
 function extractPriceRange(text: string): { min?: number; max?: number } {
   const t = text.toLowerCase()
-  const duoiMatch = t.match(/d[\u01b0u][\u1edboo]i\s+(\d+(?:[.,]\d+)?)\s*(tri[e\u1ec7]u|ty|t\u1ef7)?/)
-  const tuDenMatch = t.match(/t[\u1eeb u]\s+(\d+(?:[.,]\d+)?)\s*(tri[e\u1ec7]u|ty|t\u1ef7)?\s+(?:\u0111[e\u1ebf]n|den|-)\s+(\d+(?:[.,]\d+)?)\s*(tri[e\u1ec7]u|ty|t\u1ef7)?/)
-  const khoanMatch = t.match(/kho[a\u1ea3]ng\s+(\d+(?:[.,]\d+)?)\s*(tri[e\u1ec7]u|ty|t\u1ef7)?/)
-  const trenMatch = t.match(/tr[e\xea]n\s+(\d+(?:[.,]\d+)?)\s*(tri[e\u1ec7]u|ty|t\u1ef7)?/)
+
+  // Patterns: "dưới X triệu/tỷ", "từ X đến Y", "khoảng X", "trên X"
+  const duoiMatch = t.match(/d[ưu][ớo]i\s+(\d+(?:[.,]\d+)?)\s*(tri[eệ]u|ty|tỷ)?/)
+  const tuDenMatch = t.match(/t[ừu]\s+(\d+(?:[.,]\d+)?)\s*(tri[eệ]u|ty|tỷ)?\s+(?:đ[eế]n|den|-)\s+(\d+(?:[.,]\d+)?)\s*(tri[eệ]u|ty|tỷ)?/)
+  const khoanMatch = t.match(/kho[aả]ng\s+(\d+(?:[.,]\d+)?)\s*(tri[eệ]u|ty|tỷ)?/)
+  const trenMatch = t.match(/tr[eê]n\s+(\d+(?:[.,]\d+)?)\s*(tri[eệ]u|ty|tỷ)?/)
 
   const toVnd = (num: string, unit?: string) => {
     const n = parseFloat(num.replace(',', '.'))
-    if (unit && (unit.startsWith('ty') || unit.startsWith('t\u1ef7'))) return n * 1_000_000_000
+    if (unit && (unit.startsWith('ty') || unit.startsWith('tỷ'))) return n * 1_000_000_000
     return n * 1_000_000
   }
 
@@ -31,8 +33,8 @@ function extractPriceRange(text: string): { min?: number; max?: number } {
 // Detect vehicle type from text
 function detectVehicleType(text: string): 'car' | 'bike' | null {
   const t = text.toLowerCase()
-  if (t.match(/\b(xe? m[a\xe1]y|motor|m\xe1y|scooter)\b/)) return 'bike'
-  if (t.match(/\b(xe? [o\xf4\xf6] t[o\xf4]|[o\xf4\xf6] t[o\xf4]|sedan|suv|hatchback|mpv|pickup)\b/)) return 'car'
+  if (t.match(/\b(xe? m[aá]y|xe? g[aắ]n m[aá]y|motor|máy|scooter|pkl)\b/)) return 'bike'
+  if (t.match(/\b(xe? [oôö] t[oô]|[oôö] t[oô]|sedan|suv|hatchback|mpv|pickup|car)\b/)) return 'car'
   return null
 }
 
@@ -55,30 +57,37 @@ async function getRelevantVehicles(conversationText: string) {
       .eq('is_active', true)
       .order('view_count', { ascending: false })
       .limit(40)
-
     if (error || !data) return ''
 
-    // Filter by price range
+    // Filter by price range and format output
     let vehicles = data.filter((m: any) => {
       if (!priceRange.min && !priceRange.max) return true
       const ph = m.versions?.[0]?.price_history?.[0]
-      if (!ph?.price_min) return true
-      if (priceRange.max && ph.price_min > priceRange.max * 1.15) return false
-      if (priceRange.min && ph.price_max && ph.price_max < priceRange.min * 0.85) return false
+      if (!ph?.price_min) return true // include if no price data
+      if (priceRange.max && ph.price_min > priceRange.max * 1.1) return false
+      if (priceRange.min && ph.price_max && ph.price_max < priceRange.min * 0.9) return false
       return true
-    }).slice(0, 15)
+    })
 
-    return vehicles.map((m: any) => {
+    // Limit to most relevant 15
+    vehicles = vehicles.slice(0, 15)
+
+    const vehicleList = vehicles.map((m: any) => {
       const ph = m.versions?.[0]?.price_history?.[0]
-      const price = ph ? formatPriceRange(ph.price_min, ph.price_max) : 'Li\xean h\u1ec7'
-      return [
-        `\u2022 ${m.brand?.name} ${m.name}`,
-        `  Gi\xe1: ${price}`,
-        m.fuel_type ? `  Nhi\xean li\u1ec7u: ${m.fuel_type}` : '',
-        m.seats ? `  S\u1ed1 ch\u1ed7: ${m.seats}` : '',
-        m.segment ? `  Ph\xe2n kh\xfac: ${m.segment}` : '',
-      ].filter(Boolean).join('\n')
-    }).join('\n\n')
+      const price = ph ? formatPriceRange(ph.price_min, ph.price_max) : 'Liên hệ'
+      const parts = [
+        `• ${m.brand?.name} ${m.name}`,
+        `  Giá: ${price}`,
+        m.fuel_type ? `  Nhiên liệu: ${m.fuel_type}` : '',
+        m.seats ? `  Số chỗ: ${m.seats}` : '',
+        m.engine_cc ? `  Dung tích: ${m.engine_cc}cc` : '',
+        m.segment ? `  Phân khúc: ${m.segment}` : '',
+        m.origin ? `  Xuất xứ: ${m.origin}` : '',
+      ].filter(Boolean)
+      return parts.join('\n')
+    })
+
+    return vehicleList.join('\n\n')
   } catch (e) {
     console.error('Supabase query error:', e)
     return ''
@@ -91,26 +100,28 @@ export async function POST(req: NextRequest) {
 
     if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'your-anthropic-api-key-here') {
       return NextResponse.json(
-        { content: 'T\xednh n\u0103ng AI ch\u01b0a \u0111\u01b0\u1ee3c c\u1ea5u h\xecnh. Vui l\xf2ng li\xean h\u1ec7 admin \u0111\u1ec3 k\xedch ho\u1ea1t.' },
+        { content: 'Tính năng AI chưa được cấu hình. Vui lòng liên hệ admin để kích hoạt.' },
         { status: 200 }
       )
     }
 
+    // Combine all conversation for context extraction
     const allText = messages.map((m: any) => m.content).join(' ')
     const vehicleContext = await getRelevantVehicles(allText)
 
-    const systemPrompt = `B\u1ea1n l\xe0 chuy\xean gia t\u01b0 v\u1ea5n xe t\u1ea1i XeVietnam.vn \u2014 n\u1ec1n t\u1ea3ng d\u1eef li\u1ec7u xe \xf4 t\xf4 v\xe0 xe m\xe1y Vi\u1ec7t Nam.
+    const systemPrompt = `Bạn là chuyên gia tư vấn xe tại XeVietnam.vn — nền tảng dữ liệu xe ô tô và xe máy Việt Nam.
 
-Nhi\u1ec7m v\u1ee5: T\u01b0 v\u1ea5n ng\u01b0\u1eddi d\xf9ng ch\u1ecdn xe ph\xf9 h\u1ee3p d\u1ef1a tr\xean ng\xe2n s\xe1ch, nhu c\u1ea7u v\xe0 s\u1edf th\xedch c\xe1 nh\xe2n.
+Nhiệm vụ: Tư vấn người dùng chọn xe phù hợp dựa trên ngân sách, nhu cầu và sở thích cá nhân.
 
-${vehicleContext ? `D\u1eef li\u1ec7u xe ph\xf9 h\u1ee3p trong h\u1ec7 th\u1ed1ng:\n${vehicleContext}` : 'D\u1eef li\u1ec7u xe \u0111ang \u0111\u01b0\u1ee3c t\u1ea3i.'}
+${vehicleContext ? `Dữ liệu xe phù hợp trong hệ thống:\n${vehicleContext}` : 'Dữ liệu xe đang được tải.'}
 
-Quy t\u1eafc tr\u1ea3 l\u1eddi:
-- Lu\xf4n tr\u1ea3 l\u1eddi b\u1eb1ng ti\u1ebfng Vi\u1ec7t c\xf3 d\u1ea5u, th\xe2n thi\u1ec7n v\xe0 ng\u1eafn g\u1ecdn (t\u1ed1i \u0111a 200 t\u1eeb)
-- \u0110\u1ec1 xu\u1ea5t 2-3 xe c\u1ee5 th\u1ec3 k\xe8m gi\xe1 v\xe0 l\xfd do ph\xf9 h\u1ee3p v\u1edbi nhu c\u1ea7u
-- N\u1ebfu ch\u01b0a r\xf5 ng\xe2n s\xe1ch ho\u1eb7c nhu c\u1ea7u, h\u1ecfi th\xeam 1 c\xe2u ng\u1eafn g\u1ecdn
-- Kh\xf4ng b\u1ecba \u0111\u1eb7t th\xf4ng s\u1ed1 ho\u1eb7c gi\xe1 kh\xf4ng c\xf3 trong d\u1eef li\u1ec7u
-- D\xf9ng emoji ph\xf9 h\u1ee3p \u0111\u1ec3 tr\u1ea3 l\u1eddi sinh \u0111\u1ed9ng h\u01a1n`
+Quy tắc trả lời:
+- Luôn trả lời bằng tiếng Việt có dấu, thân thiện và ngắn gọn (tối đa 200 từ)
+- Đề xuất 2-3 xe cụ thể kèm giá và lý do phù hợp với nhu cầu
+- Nếu chưa rõ ngân sách hoặc nhu cầu, hỏi thêm 1 câu ngắn gọn
+- Ưu tiên xe có dữ liệu thực tế trong hệ thống
+- Không bịa đặt thông số hoặc giá không có trong dữ liệu
+- Dùng emoji phù hợp để trả lời sinh động hơn`
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -123,7 +134,10 @@ Quy t\u1eafc tr\u1ea3 l\u1eddi:
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         system: systemPrompt,
-        messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
+        messages: messages.map((m: any) => ({
+          role: m.role,
+          content: m.content,
+        })),
       }),
     })
 
@@ -131,19 +145,19 @@ Quy t\u1eafc tr\u1ea3 l\u1eddi:
       const err = await response.text()
       console.error('Anthropic API error:', response.status, err)
       return NextResponse.json(
-        { content: 'H\u1ec7 th\u1ed1ng AI \u0111ang b\u1eadn, vui l\xf2ng th\u1eed l\u1ea1i sau \xedt ph\xfat nh\xe9! \ud83d\ude4f' },
+        { content: 'Hệ thống AI đang bận, vui lòng thử lại sau ít phút nhé! 🙏' },
         { status: 200 }
       )
     }
 
     const data = await response.json()
-    const content = data.content?.[0]?.text || 'Xin l\u1ed7i, t\xf4i ch\u01b0a hi\u1ec3u c\xe2u h\u1ecfi. B\u1ea1n c\xf3 th\u1ec3 n\xf3i r\xf5 h\u01a1n kh\xf4ng?'
+    const content = data.content?.[0]?.text || 'Xin lỗi, tôi chưa hiểu câu hỏi. Bạn có thể nói rõ hơn không?'
 
     return NextResponse.json({ content })
   } catch (error) {
     console.error('Chat API error:', error)
     return NextResponse.json(
-      { content: '\u0110\xe3 x\u1ea3y ra l\u1ed7i k\u1ebft n\u1ed1i. Vui l\xf2ng th\u1eed l\u1ea1i sau! \ud83d\ude4f' },
+      { content: 'Đã xảy ra lỗi kết nối. Vui lòng thử lại sau! 🙏' },
       { status: 200 }
     )
   }
