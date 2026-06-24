@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const type = brand.vehicle_type === 'bike' ? 'xe máy' : 'ô tô'
   return {
     title: `${brand.name} - Bảng giá ${type} và thông số kỹ thuật 2025`,
-    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yet, thông số kỹ thuật, so sánh và tư vấn AI.`
+    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yết, thông số kỹ thuật, so sánh và tư vấn AI.`
   }
 }
 
