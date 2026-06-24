@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const type = brand.vehicle_type === 'bike' ? 'xe máy' : 'ô tô'
   return {
     title: `${brand.name} - Bảng giá ${type} và thông số kỹ thuật 2025`,
-    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm y�ết, thông số kỹ thuật, so sánh và tư vấn AI.`,
+    description: `Toàn bộ dòng ${type} ${brand.name} tại Việt Nam: giá niêm yet, thông số kỹ thuật, so sánh và tư vấn AI.`
   }
 }
 
@@ -133,7 +133,7 @@ export default async function BrandPage({ params }: Props) {
 
         <div className="relative max-w-6xl mx-auto px-4 pt-6 pb-12">
           <nav className="text-xs text-gray-600 mb-8 flex items-center gap-1.5">
-            <Link href="/" className="hover:text-gray-400 transition">Trang ch&#791;</Link>
+            <Link href="/" className="hover:text-gray-400 transition">Trang chủ</Link>
             <span>/</span>
             <Link href={isCar ? '/o-to' : '/xe-may'} className="hover:text-gray-400 transition">
               {isCar ? 'Xe ô tô' : 'Xe máy'}
@@ -170,7 +170,7 @@ export default async function BrandPage({ params }: Props) {
                 <div>
                   <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight leading-none">{brand.name}</h1>
                   <p className="text-gray-500 text-sm mt-2">
-                    {brand.country && `${brand.country} C· `}{models.length} dòng {isCar ? 'ô tô' : 'xe máy�}
+                    {brand.country && `${brand.country} · `	{models.length} dòng {isCar ? 'ô tô' : 'xe máy'}
                   </p>
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default async function BrandPage({ params }: Props) {
             </p>
           </div>
           <Link
-            href={`/tu-van?q=${encodeURIComponent(`Tư vấn xe ${brand.name} phể hợp cho tôi`)}`}
+            href={`/tu-van?q=${encodeURIComponent(`Tư vấn xe ${brand.name} phù hợp cho tôi`)}`}
             className="flex-shrink-0 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap"
           >
             Hỏi AI →
