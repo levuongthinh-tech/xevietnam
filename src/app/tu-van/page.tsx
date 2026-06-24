@@ -11,7 +11,7 @@ export default function TuVanPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Xin chao! Toi la tro ly tu van xe cua XeVietnam. Ban muon mua xe o to hay xe may? Cho toi biet ngan sach va nhu cau su dung cua ban nhe!',
+      content: 'Xin chào! Tôi là trợ lý tư vấn xe của XeVietnam. Bạn muốn mua xe ô tô hay xe máy? Cho tôi biết ngân sách và nhu cầu sử dụng của bạn nhé! 😊',
     },
   ])
   const [input, setInput] = useState('')
@@ -37,14 +37,14 @@ export default function TuVanPage() {
         body: JSON.stringify({ messages: [...messages, userMsg] }),
       })
 
-      if (!res.ok) throw new Error('Loi ket noi')
+      if (!res.ok) throw new Error('Lỗi kết nối')
 
       const data = await res.json()
       setMessages(prev => [...prev, { role: 'assistant', content: data.content }])
     } catch {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: 'Xin loi, co loi xay ra. Vui long thu lai sau.' },
+        { role: 'assistant', content: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.' },
       ])
     } finally {
       setLoading(false)
@@ -52,17 +52,17 @@ export default function TuVanPage() {
   }
 
   const suggestions = [
-    'Toi can xe o to duoi 600 trieu cho gia dinh 4 nguoi',
-    'Xe may nao phu hop di lam hang ngay trong thanh pho?',
-    'So sanh Toyota Vios va Honda City',
-    'Xe dien nao dang mua nhat hien nay?',
+    'Tôi cần xe ô tô dưới 600 triệu cho gia đình 4 người',
+    'Xe máy nào phù hợp đi làm hàng ngày trong thành phố?',
+    'So sánh Toyota Vios và Honda City',
+    'Xe điện nào đáng mua nhất hiện nay?',
   ]
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col" style={{ height: 'calc(100vh - 56px)' }}>
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Tu van xe bang AI</h1>
-        <p className="text-gray-500 text-sm">Duoc ho tro boi Claude AI + du lieu xe thuc te</p>
+        <h1 className="text-2xl font-bold text-gray-900">🤖 Tư vấn xe bằng AI</h1>
+        <p className="text-gray-500 text-sm">Được hỗ trợ bởi Claude AI + dữ liệu xe thực tế</p>
       </div>
 
       {/* Messages */}
@@ -74,7 +74,7 @@ export default function TuVanPage() {
           >
             {msg.role === 'assistant' && (
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-1">
-                AI
+                🤖
               </div>
             )}
             <div
@@ -91,7 +91,7 @@ export default function TuVanPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-sm mr-2">AI</div>
+            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-sm mr-2">🤖</div>
             <div className="bg-white border rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
               <div className="flex gap-1">
                 <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -126,7 +126,7 @@ export default function TuVanPage() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder="Nhap cau hoi ve xe..."
+          placeholder="Nhập câu hỏi về xe..."
           className="flex-1 border border-gray-300 rounded-full px-5 py-3 text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
           disabled={loading}
         />
@@ -135,7 +135,9 @@ export default function TuVanPage() {
           disabled={loading || !input.trim()}
           className="bg-red-600 disabled:bg-gray-300 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-red-700 transition flex-shrink-0"
         >
-          &gt;
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
         </button>
       </div>
     </div>
