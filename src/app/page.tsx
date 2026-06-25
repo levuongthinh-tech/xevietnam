@@ -2,108 +2,96 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-/* ─── Expert config ─────────────────────────────────────────────────── */
 type ExpertId = 'mua-xe' | 'ky-thuat' | 'tai-chinh'
 
 interface Expert {
   id: ExpertId
   name: string
-  role: string
   icon: string
-  activeBorder: string
-  activeBg: string
-  sendGradient: string
-  greeting: string
-  placeholder: string
-  chips: string[]
+  accent: string
+  bg: string
 }
 
-const EXPERTS: Expert[] = [
-  {
-    id: 'mua-xe',
-    name: 'Tư vấn mua xe',
-    role: 'Chuyên gia chọn xe phù hợp ngân sách & nhu cầu',
-    icon: '🚗',
-    activeBorder: 'border-red-500',
-    activeBg: 'bg-red-500/10',
-    sendGradient: 'from-red-500 to-orange-500',
-    greeting: 'Xin chào! Tôi là chuyên gia tư vấn mua xe của XeVietnam. Hãy cho tôi biết ngân sách và nhu cầu của bạn — tôi sẽ gợi ý những dòng xe phù hợp nhất! 🚗',
-    placeholder: 'Ví dụ: Xe gia đình 7 chỗ dưới 700 triệu...',
-    chips: ['Xe gia đình dưới 700 triệu', 'Xe tay ga cho nữ dưới 50 triệu', 'Xe điện giá rẻ nhất', 'SUV dưới 1 tỷ'],
-  },
-  {
-    id: 'ky-thuat',
-    name: 'Tư vấn kỹ thuật',
-    role: 'Chuyên gia động cơ, thông số & bảo dưỡng xe',
-    icon: '🔧',
-    activeBorder: 'border-blue-500',
-    activeBg: 'bg-blue-500/10',
-    sendGradient: 'from-blue-500 to-cyan-500',
-    greeting: 'Xin chào! Tôi là chuyên gia kỹ thuật xe. Bạn muốn hỏi về thông số động cơ, so sánh công nghệ hay lịch bảo dưỡng? Tôi sẵn sàng giải đáp! 🔧',
-    placeholder: 'Ví dụ: Hybrid và xăng thường khác nhau thế nào?',
-    chips: ['Toyota Camry Hybrid vs xăng', 'Bảo dưỡng 10.000 km gồm những gì?', 'Động cơ tăng áp có bền không?', 'Xe điện sạc mất bao lâu?'],
-  },
-  {
-    id: 'tai-chinh',
-    name: 'Tài chính & Bảo hiểm',
-    role: 'Chuyên gia vay mua xe, bảo hiểm & chi phí sở hữu',
-    icon: '💰',
-    activeBorder: 'border-emerald-500',
-    activeBg: 'bg-emerald-500/10',
-    sendGradient: 'from-emerald-500 to-teal-500',
-    greeting: 'Xin chào! Tôi là chuyên gia tài chính & bảo hiểm xe. Tôi có thể giúp bạn tính toán khoản vay, phí bảo hiểm và tổng chi phí sở hữu xe. Hỏi tôi đi! 💰',
-    placeholder: 'Ví dụ: Vay 400 triệu mua xe, trả góp bao nhiêu/tháng?',
-    chips: ['Vay 500 triệu trả trong 5 năm', 'Bảo hiểm ô tô cần những loại gì?', 'Phí trước bạ xe mới tính thế nào?', 'Chi phí nuôi xe ô tô hàng tháng'],
-  },
-]
-
-/* ─── Message type ──────────────────────────────────────────────────── */
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  expert?: ExpertId
 }
 
-/* ─── Component ─────────────────────────────────────────────────────── */
+const EXPERTS: Record<ExpertId, Expert> = {
+  'mua-xe': {
+    id: 'mua-xe',
+    name: 'Tư vấn mua xe',
+    icon: '🚗',
+    accent: '#ef4444',
+    bg: 'rgba(239,68,68,0.12)',
+  },
+  'ky-thuat': {
+    id: 'ky-thuat',
+    name: 'Kỹ thuật xe',
+    icon: '🔧',
+    accent: '#3b82f6',
+    bg: 'rgba(59,130,246,0.12)',
+  },
+  'tai-chinh': {
+    id: 'tai-chinh',
+    name: 'Tài chính & Bảo hiểm',
+    icon: '💰',
+    accent: '#10b981',
+    bg: 'rgba(16,185,129,0.12)',
+  },
+}
+
+const SUGGESTION_CHIPS = [
+  'SUV 7 chỗ dưới 1 tỷ tốt nhất?',
+  'Vay 500 triệu mua xe trả góp bao nhiêu?',
+  'Xe điện có nên mua không?',
+  'Bảo dưỡng Toyota Hybrid thế nào?',
+]
+
+function detectExpert(text: string): ExpertId {
+  const t = text.toLowerCase()
+  if (
+    t.match(
+      /vay|tr[aả]\s*g[oó]p|b[aả]o\s*hi[eể]m|ph[ií]\s*tr[uướ][oơ]c\s*b[aạ]|l[aã]i\s*su[aấ]t|ng[aâ]n\s*h[aà]ng|chi\s*ph[ií]\s*h[aà]ng|[dđ][aă]ng\s*k[yý]/
+    )
+  )
+    return 'tai-chinh'
+  if (
+    t.match(
+      /b[aả]o\s*d[uưỡ][oơ]ng|s[uửữ]a|[dđ][oộ]ng\s*c[oơ]|hybrid|[dđ]i[eệ]n|th[oô]ng\s*s[oố]|ti[eê]u\s*hao|m[aã]\s*l[uự]c|h[oộ]p\s*s[oố]|c[oô]ng\s*ngh[eệ]|[kk][yý]\s*thu[aậ]t/
+    )
+  )
+    return 'ky-thuat'
+  return 'mua-xe'
+}
+
 export default function HomePage() {
-  const [activeExpert, setActiveExpert] = useState<Expert>(EXPERTS[0])
-  const [messagesByExpert, setMessagesByExpert] = useState<Record<ExpertId, Message[]>>({
-    'mua-xe': [],
-    'ky-thuat': [],
-    'tai-chinh': [],
-  })
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [activeExpert, setActiveExpert] = useState<ExpertId>('mua-xe')
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const hasMessages = messages.length > 0
 
-  const messages = messagesByExpert[activeExpert.id]
-
-  // Scroll to bottom when new messages appear
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  // Prepend greeting when chat is empty
-  const displayMessages: Message[] =
-    messages.length === 0
-      ? [{ role: 'assistant', content: activeExpert.greeting }]
-      : messages
-
-  function switchExpert(expert: Expert) {
-    setActiveExpert(expert)
-    setInput('')
-    setTimeout(() => textareaRef.current?.focus(), 50)
-  }
-
-  async function sendMessage(text: string) {
+  async function sendMessage(text: string, forceExpert?: ExpertId) {
     const trimmed = text.trim()
     if (!trimmed || loading) return
 
-    const nextMessages: Message[] = [...messages, { role: 'user', content: trimmed }]
-    setMessagesByExpert(prev => ({ ...prev, [activeExpert.id]: nextMessages }))
-    setInput('')
+    const expert = forceExpert ?? detectExpert(trimmed)
+    setActiveExpert(expert)
 
-    // Reset textarea height
+    const nextMessages: Message[] = [
+      ...messages,
+      { role: 'user', content: trimmed, expert },
+    ]
+    setMessages(nextMessages)
+    setInput('')
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
@@ -113,25 +101,34 @@ export default function HomePage() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: nextMessages, expert: activeExpert.id }),
+        body: JSON.stringify({
+          messages: nextMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          expert,
+        }),
       })
       const data = await res.json()
-      const reply: Message = {
-        role: 'assistant',
-        content: data.content || 'Xin lỗi, tôi chưa hiểu câu hỏi. Bạn có thể nói rõ hơn không?',
-      }
-      setMessagesByExpert(prev => ({
+      setMessages((prev) => [
         ...prev,
-        [activeExpert.id]: [...nextMessages, reply],
-      }))
+        {
+          role: 'assistant',
+          content:
+            data.content ||
+            'Xin lỗi, tôi chưa hiểu câu hỏi. Bạn có thể nói rõ hơn không?',
+          expert,
+        },
+      ])
     } catch {
-      setMessagesByExpert(prev => ({
+      setMessages((prev) => [
         ...prev,
-        [activeExpert.id]: [
-          ...nextMessages,
-          { role: 'assistant', content: 'Đã xảy ra lỗi kết nối. Vui lòng thử lại sau! 🙏' },
-        ],
-      }))
+        {
+          role: 'assistant',
+          content: 'Đã xảy ra lỗi kết nối. Vui lòng thử lại sau!',
+          expert,
+        },
+      ])
     } finally {
       setLoading(false)
     }
@@ -150,158 +147,562 @@ export default function HomePage() {
     t.style.height = Math.min(t.scrollHeight, 140) + 'px'
   }
 
+  const expert = EXPERTS[activeExpert]
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-
-      {/* ── Hero tagline ── */}
-      <div className="text-center pt-10 pb-6 px-4">
-        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs text-gray-400 mb-4">
-          <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-          Các chuyên gia AI đang trực tuyến
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-          H�n�� chuyên gia xe
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400"> bằng AI</span>
-        </h1>
-        <p className="text-gray-400 text-sm max-w-md mx-auto">
-          Chọn chuyên gia phù hợp và đặt câu hỏi — nhận tư vấn dựa trên dữ liệu xe thực tế tại Việt Nam
-        </p>
-      </div>
-
-      {/* ── Expert selector ── */}
-      <div className="max-w-3xl mx-auto w-full px-4 mb-4">
-        <div className="grid grid-cols-3 gap-3">
-          {EXPERTS.map(expert => {
-            const isActive = activeExpert.id === expert.id
-            const hasHistory = messagesByExpert[expert.id].length > 0
-            return (
-              <button
-                key={expert.id}
-                onClick={() => switchExpert(expert)}
-                className={`relative rounded-2xl border p-3 text-left transition-all duration-200 ${
-                  isActive
-                    ? `${expert.activeBorder} ${expert.activeBg}`
-                    : 'border-white/10 bg-white/[0.03] hover:bg-white/5 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-start gap-2">
-                  <span className="text-2xl leading-none mt-0.5">{expert.icon}</span>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-white text-sm leading-tight">{expert.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 leading-tight hidden sm:block line-clamp-2">{expert.role}</p>
-                  </div>
-                </div>
-                {/* Online dot */}
-                <span className={`absolute top-2.5 right-2.5 w-2 h-2 rounded-full ${
-                  isActive ? 'bg-green-400 shadow-lg shadow-green-400/50' : hasHistory ? 'bg-gray-500' : 'bg-gray-700'
-                }`} />
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── Chat window ── */}
-      <div className="flex-1 max-w-3xl mx-auto w-full px-4 flex flex-col">
-        {/* Chat card */}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#030305',
+        color: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}
+    >
+      {!hasMessages ? (
+        /* ── Empty state ── */
         <div
-          className={`rounded-2xl border bg-gray-900/60 backdrop-blur flex flex-col overflow-hidden ${activeExpert.activeBorder} border-opacity-40`}
-          style={{ minHeight: '400px', maxHeight: '58vh' }}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0 16px 80px',
+          }}
         >
-          {/* Chat header bar */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-white/[0.03] flex-shrink-0">
-            <span className="text-xl">{activeExpert.icon}</span>
-            <div>
-              <p className="font-semibold text-white text-sm">{activeExpert.name}</p>
-              <p className="text-xs text-gray-400">{activeExpert.role}</p>
-            </div>
-            <div className="ml-auto flex items-center gap-1.5 text-xs text-green-400">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              Trực tuyến
-            </div>
+          {/* Live indicator */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 999,
+              padding: '6px 16px',
+              fontSize: 12,
+              color: '#9ca3af',
+              marginBottom: 32,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                background: '#4ade80',
+                borderRadius: '50%',
+              }}
+            />
+            AI đang trực tuyến — sẵn sàng tư vấn xe
           </div>
 
-          {/* Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {displayMessages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5">
-                    {activeExpert.icon}
-                  </div>
-                )}
-                <div
-                  className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === 'user'
-                      ? 'bg-white text-gray-900 rounded-br-sm'
-                      : 'bg-gray-800 text-gray-100 rounded-bl-sm'
-                  }`}
-                >
-                  {msg.content}
-                </div>
-              </div>
-            ))}
+          {/* Heading */}
+          <h1
+            style={{
+              fontSize: 'clamp(28px, 5vw, 48px)',
+              fontWeight: 700,
+              textAlign: 'center',
+              lineHeight: 1.2,
+              marginBottom: 12,
+            }}
+          >
+            Hoi bat ky dieu gi
+            <br />
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #f87171, #fb923c)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              ve xe Viet Nam
+            </span>
+          </h1>
+          <p
+            style={{
+              color: '#6b7280',
+              textAlign: 'center',
+              marginBottom: 32,
+              fontSize: 14,
+              maxWidth: 360,
+            }}
+          >
+            AI tu nhan dien cau hoi va ket noi voi chuyen gia phu hop nhat
+          </p>
 
-            {/* Typing indicator */}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-sm mr-2 flex-shrink-0">
-                  {activeExpert.icon}
-                </div>
-                <div className="bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-        </div>
-
-        {/* ── Suggestion chips (shown only on empty chat) ── */}
-        {messages.length === 0 && (
-          <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-            {activeExpert.chips.map(chip => (
+          {/* Expert chips */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              marginBottom: 24,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            {(Object.values(EXPERTS) as Expert[]).map((e) => (
               <button
-                key={chip}
-                onClick={() => sendMessage(chip)}
-                disabled={loading}
-                className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white rounded-xl px-3 py-2 transition disabled:opacity-40"
+                key={e.id}
+                onClick={() => {
+                  setActiveExpert(e.id)
+                  textareaRef.current?.focus()
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  fontSize: 13,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.03)',
+                  color: '#d1d5db',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(el) => {
+                  el.currentTarget.style.background =
+                    'rgba(255,255,255,0.07)'
+                }}
+                onMouseLeave={(el) => {
+                  el.currentTarget.style.background =
+                    'rgba(255,255,255,0.03)'
+                }}
               >
-                {chip}
+                <span>{e.icon}</span>
+                <span>{e.name}</span>
               </button>
             ))}
           </div>
-        )}
 
-        {/* ── Input bar ── */}
-        <div className="mt-3 mb-8 flex gap-2 items-end">
-          <div className="flex-1">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onInput={handleInput}
-              placeholder={activeExpert.placeholder}
-              rows={1}
-              disabled={loading}
-              className="w-full bg-gray-800 border border-white/10 focus:border-white/30 rounded-2xl px-4 py-3 text-sm text-white placeholder-gray-500 resize-none outline-none transition"
-              style={{ minHeight: '48px', maxHeight: '140px' }}
-            />
+          {/* Chat input */}
+          <div style={{ width: '100%', maxWidth: 680 }}>
+            <div
+              style={{
+                background: '#111113',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 16,
+                overflow: 'hidden',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={() => {}}
+            >
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onInput={handleInput}
+                placeholder="Hoi ve xe, gia ca, ky thuat hay tai chinh..."
+                rows={1}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '16px 20px 8px',
+                  fontSize: 15,
+                  color: '#fff',
+                  resize: 'none',
+                  outline: 'none',
+                  minHeight: 56,
+                  maxHeight: 140,
+                  boxSizing: 'border-box',
+                }}
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 16px 12px',
+                }}
+              >
+                <span style={{ fontSize: 12, color: '#4b5563' }}>
+                  AI tu chon chuyen gia phu hop
+                </span>
+                <button
+                  onClick={() => sendMessage(input)}
+                  disabled={!input.trim() || loading}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 10,
+                    background:
+                      input.trim() && !loading ? '#ef4444' : '#374151',
+                    border: 'none',
+                    cursor:
+                      input.trim() && !loading
+                        ? 'pointer'
+                        : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Suggestions */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                marginTop: 12,
+                flexWrap: 'wrap',
+              }}
+            >
+              {SUGGESTION_CHIPS.map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => sendMessage(chip)}
+                  style={{
+                    fontSize: 13,
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    color: '#9ca3af',
+                    borderRadius: 10,
+                    padding: '7px 13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(el) => {
+                    el.currentTarget.style.color = '#e5e7eb'
+                    el.currentTarget.style.background =
+                      'rgba(255,255,255,0.08)'
+                  }}
+                  onMouseLeave={(el) => {
+                    el.currentTarget.style.color = '#9ca3af'
+                    el.currentTarget.style.background =
+                      'rgba(255,255,255,0.04)'
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim() || loading}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition flex-shrink-0 bg-gradient-to-br ${activeExpert.sendGradient} disabled:opacity-40 disabled:cursor-not-allowed shadow-lg`}
-          >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </button>
         </div>
-      </div>
+      ) : (
+        /* ── Chat state ── */
+        <>
+          {/* Expert badge */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '12px 16px',
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 16px',
+                borderRadius: 999,
+                fontSize: 13,
+                background: expert.bg,
+                border: `1px solid ${expert.accent}50`,
+                color: expert.accent,
+              }}
+            >
+              <span>{expert.icon}</span>
+              <span style={{ fontWeight: 500 }}>{expert.name}</span>
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: expert.accent,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '0 16px 16px',
+              maxWidth: 720,
+              width: '100%',
+              margin: '0 auto',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {messages.map((msg, i) => {
+                const msgExp = msg.expert ? EXPERTS[msg.expert] : expert
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      justifyContent:
+                        msg.role === 'user' ? 'flex-end' : 'flex-start',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    {msg.role === 'assistant' && (
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          background: msgExp.bg,
+                          border: `1px solid ${msgExp.accent}40`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 16,
+                          flexShrink: 0,
+                          marginTop: 2,
+                        }}
+                      >
+                        {msgExp.icon}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        maxWidth: '78%',
+                        borderRadius:
+                          msg.role === 'user'
+                            ? '18px 18px 4px 18px'
+                            : '18px 18px 18px 4px',
+                        padding: '12px 16px',
+                        fontSize: 14,
+                        lineHeight: 1.65,
+                        whiteSpace: 'pre-wrap',
+                        ...(msg.role === 'user'
+                          ? {
+                              background: '#ffffff',
+                              color: '#111827',
+                            }
+                          : {
+                              background: 'rgba(255,255,255,0.06)',
+                              color: '#e5e7eb',
+                            }),
+                      }}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                )
+              })}
+
+              {/* Loading dots */}
+              {loading && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: expert.bg,
+                      border: `1px solid ${expert.accent}40`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 16,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {expert.icon}
+                  </div>
+                  <div
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      borderRadius: '18px 18px 18px 4px',
+                      padding: '14px 18px',
+                      display: 'flex',
+                      gap: 5,
+                      alignItems: 'center',
+                    }}
+                  >
+                    {[0, 1, 2].map((n) => (
+                      <span
+                        key={n}
+                        style={{
+                          width: 7,
+                          height: 7,
+                          borderRadius: '50%',
+                          background: '#6b7280',
+                          display: 'block',
+                          animation: 'bounce 1.2s infinite',
+                          animationDelay: `${n * 0.15}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+          </div>
+
+          {/* Sticky bottom input */}
+          <div
+            style={{
+              padding: '0 16px 24px',
+              maxWidth: 720,
+              width: '100%',
+              margin: '0 auto',
+            }}
+          >
+            {/* Switch expert pills */}
+            <div
+              style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}
+            >
+              {(Object.values(EXPERTS) as Expert[]).map((e) => {
+                const isActive = activeExpert === e.id
+                return (
+                  <button
+                    key={e.id}
+                    onClick={() => {
+                      setActiveExpert(e.id)
+                      textareaRef.current?.focus()
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '5px 12px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      ...(isActive
+                        ? {
+                            background: e.bg,
+                            border: `1px solid ${e.accent}60`,
+                            color: e.accent,
+                          }
+                        : {
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#9ca3af',
+                          }),
+                    }}
+                  >
+                    <span>{e.icon}</span>
+                    <span>{e.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Input */}
+            <div
+              style={{
+                background: '#111113',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 16,
+                overflow: 'hidden',
+              }}
+            >
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onInput={handleInput}
+                placeholder="Tiep tuc hoi..."
+                rows={1}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '14px 20px 6px',
+                  fontSize: 14,
+                  color: '#fff',
+                  resize: 'none',
+                  outline: 'none',
+                  minHeight: 50,
+                  maxHeight: 140,
+                  boxSizing: 'border-box',
+                  opacity: loading ? 0.5 : 1,
+                }}
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  padding: '6px 14px 12px',
+                }}
+              >
+                <button
+                  onClick={() => sendMessage(input)}
+                  disabled={!input.trim() || loading}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 9,
+                    background:
+                      input.trim() && !loading ? '#ef4444' : '#374151',
+                    border: 'none',
+                    cursor:
+                      input.trim() && !loading
+                        ? 'pointer'
+                        : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <style>{`
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-5px); }
+        }
+      `}</style>
     </div>
   )
 }
