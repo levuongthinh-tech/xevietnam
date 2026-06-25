@@ -1,288 +1,307 @@
-import Link from 'next/link'
-import { supabase, formatPriceRange } from '@/lib/supabase'
+'use client'
 
-async function getStats() {
-  const [{ count: modelCount }, { count: brandCount }] = await Promise.all([
-    supabase.from('models').select('*', { count: 'exact', head: true }).eq('is_active', true),
-    supabase.from('brands').select('*', { count: 'exact', head: true }).eq('is_active', true),
-  ])
-  return { models: modelCount || 0, brands: brandCount || 0 }
+import { useState, useRef, useEffect } from 'react'
+
+/* âââ Expert config âââââââââââââââââââââââââââââââââââââââââââââââââââ */
+type ExpertId = 'mua-xe' | 'ky-thuat' | 'tai-chinh'
+
+interface Expert {
+  id: ExpertId
+  name: string
+  role: string
+  icon: string
+  activeBorder: string
+  activeBg: string
+  sendGradient: string
+  greeting: string
+  placeholder: string
+  chips: string[]
 }
 
-async function getPopularModels() {
-  const { data } = await supabase
-    .from('models')
-    .select(`id, name, slug, thumbnail_url, specs, brand:brands(name, slug, vehicle_type)`)
-    .eq('is_active', true)
-    .order('view_count', { ascending: false })
-    .limit(8)
-  return data || []
+const EXPERTS: Expert[] = [
+  {
+    id: 'mua-xe',
+    name: 'TÆ° váº¥n mua xe',
+    role: 'ChuyÃªn gia chá»n xe phÃ¹ há»£p ngÃ¢n sÃ¡ch & nhu cáº§u',
+    icon: 'ð',
+    activeBorder: 'border-red-500',
+    activeBg: 'bg-red-500/10',
+    sendGradient: 'from-red-500 to-orange-500',
+    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia tÆ° váº¥n mua xe cá»§a XeVietnam. HÃ£y cho tÃ´i biáº¿t ngÃ¢n sÃ¡ch vÃ  nhu cáº§u cá»§a báº¡n â tÃ´i sáº½ gá»£i Ã½ nhá»¯ng dÃ²ng xe phÃ¹ há»£p nháº¥t! ð',
+    placeholder: 'VÃ­ dá»¥: Xe gia ÄÃ¬nh 7 chá» dÆ°á»i 700 triá»u...',
+    chips: ['Xe gia ÄÃ¬nh dÆ°á»i 700 triá»u', 'Xe tay ga cho ná»¯ dÆ°á»i 50 triá»u', 'Xe Äiá»n giÃ¡ re nháº¥t', 'SUV dÆ°á»i 1 táº·'],
+  },
+  {
+    id: 'ky-thuat',
+    name: 'TÆ° táº¥n ká»¹ thuáº­t',
+    role: 'ChuyÃªn gia Äá»ng cÆ£, thÃ´ng sá» & báº£o dÆ°á»¡ng xe',
+    icon: 'ð§',
+    activeBorder: 'border-blue-500',
+    activeBg: 'bg-blue-500/10',
+    sendGradient: 'from-blue-500 to-cyan-500',
+    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia ká»¹ thuáº­t xe. Báº¡n muoá»n há»i vá» thÃ´ng sá» Äá»ng cÆ¢, so sÃ¡nh cÃ´ng nghiá» hay lá»ch báº£o dÆ°á»¡ng? TÃ´i sáºµn sÃ ng giáº£i ÄÃ¡p! ð§',
+    placeholder: 'VÃ­ dá»¥: Hybrid vÃ  xÄng thÆ°á»ng khÃ¡c nhau tháº¿ nÃ o?',
+    chips: ['Toyota Camry Hybrid vs xäng', 'Báº£o dÆ°á»¡ng 10.000 km gá»m nhá»¯ng gÃ¬?', 'Äá»ng cÆ¡ tÄng Ã¡p cÃ³ bá»n khÃ´ng?', 'Xe Äiá»n sáº¡c máº¥t bao lÃ¢u?'],
+  },
+  {
+    id: 'tai-chinh',
+    name: 'TÃ i chÃ­nh & Báº£o hiá»m',
+    role: 'ChuyÃªn gia vay mua xe, báº£o hiá»m & chi phÃ­ sá» há»¯t',
+    icon: 'ð°',
+    activeBorder: 'border-emerald-500',
+    activeBg: 'bg-emerald-500/10',
+    sendGradient: 'from-emerald-500 to-teal-500',
+    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia tÃ i chÃ­nh & báº£o hiá»m xe. TÃ´i cÃ³ thá» giÃºp báº¡n tÃ­nh toÃ¡n khoáº£n vay, phÃ­ báº£o hiá»m vÃ  tá»ng chi phÃ­ sá» há»¯u xe. Há»i tÃ´i Äi! ð°',
+    placeholder: 'VÃ­ dá»¥: Vay 400 triá»u mua xe, tráº£ gÃ³p bao nhiÃªu/thÃ¡ng?',
+    chips: ['Vay 500 triá»u tráº£ trong 5 nÄm', 'Báº£o hiá»m Ã´ tÃ´ cáº§n nhá»¯ng loáº¡i gÃ¬?', 'PhÃ­ trÆ°á»c báº¡ xe má»i tÃ­nh tháº¿ nÃ o?', 'Chi phÃ­ nuÃ´i xe Ã´ tÃ´ hÃ ng thÃ¡ng'],
+  },
+]
+
+/* âââ Message type ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
 }
 
-async function getBrands(type: 'car' | 'bike') {
-  const { data } = await supabase
-    .from('brands')
-    .select('id, name, slug, logo_url')
-    .or(`vehicle_type.eq.${type},vehicle_type.eq.both`)
-    .eq('is_active', true)
-    .order('name')
-    .limit(12)
-  return data || []
-}
+/* âââ Component âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+export default function HomePage() {
+  const [activeExpert, setActiveExpert] = useState<Expert>(EXPERTS[0])
+  const [messagesByExpert, setMessagesByExpert] = useState<Record<ExpertId, Message[]>>({
+    'mua-xe': [],
+    'ky-thuat': [],
+    'tai-chinh': [],
+  })
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-function getModelPrice(model: any) {
-  let sp = model?.specs
-  if (typeof sp === 'string') { try { sp = JSON.parse(sp) } catch { sp = null } }
-  return sp?.price_min ? formatPriceRange(sp.price_min, sp.price_max) : 'Liên hệ'
-}
+  const messages = messagesByExpert[activeExpert.id]
 
-function getSpecCount(model: any) {
-  let sp = model?.specs
-  if (typeof sp === 'string') { try { sp = JSON.parse(sp) } catch { sp = null } }
-  if (!sp) return 0
-  return Object.keys(sp).filter(k => !['price_min','price_max','price_raw'].includes(k)).length
-}
+  // Scroll to bottom when new messages appear
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading])
 
-const VEHICLE_EMOJI: Record<string, string> = {
-  car: '🚗',
-  bike: '🏍️',
-  both: '🚗',
-}
+  // Prepend greeting when chat is empty
+  const displayMessages: Message[] =
+    messages.length === 0
+      ? [{ role: 'assistant', content: activeExpert.greeting }]
+      : messages
 
-export default async function HomePage() {
-  const [stats, popularModels, carBrands, bikeBrands] = await Promise.all([
-    getStats(),
-    getPopularModels(),
-    getBrands('car'),
-    getBrands('bike'),
-  ])
+  function switchExpert(expert: Expert) {
+    setActiveExpert(expert)
+    setInput('')
+    setTimeout(() => textareaRef.current?.focus(), 50)
+  }
+
+  async function sendMessage(text: string) {
+    const trimmed = text.trim()
+    if (!trimmed || loading) return
+
+    const nextMessages: Message[] = [...messages, { role: 'user', content: trimmed }]
+    setMessagesByExpert(prev => ({ ...prev, [activeExpert.id]: nextMessages }))
+    setInput('')
+
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: nextMessages, expert: activeExpert.id }),
+      })
+      const data = await res.json()
+      const reply: Message = {
+        role: 'assistant',
+        content: data.content || 'Xin lá»i, tÃ´i chÆ°a hiá»u cÃ¢u há»i. Báº¡n cÃ³ thá» nÃ³i rÃµ hÆ¡n khÃ´ng?',
+      }
+      setMessagesByExpert(prev => ({
+        ...prev,
+        [activeExpert.id]: [...nextMessages, reply],
+      }))
+    } catch {
+      setMessagesByExpert(prev => ({
+        ...prev,
+        [activeExpert.id]: [
+          ...nextMessages,
+          { role: 'assistant', content: 'ÄÃ£ xáº£y ra lá»i káº¿t ná»i. Vui lÃ²ng thá»­ láº¡i sau! ð' },
+        ],
+      }))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage(input)
+    }
+  }
+
+  function handleInput(e: React.FormEvent<HTMLTextAreaElement>) {
+    const t = e.currentTarget
+    t.style.height = 'auto'
+    t.style.height = Math.min(t.scrollHeight, 140) + 'px'
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden relative">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-600/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+
+      {/* ââ Hero tagline ââ */}
+      <div className="text-center pt-10 pb-6 px-4">
+        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs text-gray-400 mb-4">
+          <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+          CÃ¡c chuyÃªn gia AI Äang trá»±c tuyáº¿n
         </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          Há»i chuyÃªn gia xe
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400"> báº±ng AI</span>
+        </h1>
+        <p className="text-gray-400 text-sm max-w-md mx-auto">
+          Chá»n chuyÃªn gia phÃ¹ há»£p vÃ  Äáº·t cÃ¢u há»i â nháº­n tÆ° váº¥n dá»±a trÃªn dá»¯ liá»u xe thá»±c táº¯ táº¡i Viá»t Nam
+        </p>
+      </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-20 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm text-gray-300 mb-6">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              Dữ liệu xe Việt Nam cập nhật liên tục
-            </div>
-
-            <h1 className="text-5xl md:text-6xl font-bold mb-5 leading-tight">
-              Tra cứu xe thông minh
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">
-                với trợ lý AI
-              </span>
-            </h1>
-            <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-              Dữ liệu {stats.models}+ dòng xe từ {stats.brands}+ hãng.
-              Thông số kỹ thuật chi tiết, giá thực tế và tư vấn AI cá nhân hoá.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-              <Link
-                href="/tu-van"
-                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-4 rounded-2xl transition text-lg shadow-lg shadow-red-900/30"
-              >
-                🤖 Tư vấn với AI
-              </Link>
-              <Link
-                href="/o-to"
-                className="flex items-center justify-center gap-2 border border-white/30 hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl transition text-lg"
-              >
-                Duyệt xe ngay →
-              </Link>
-            </div>
-
-            {/* Stats strip */}
-            <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
-              {[
-                { value: `${stats.models}+`, label: 'Dòng xe' },
-                { value: `${stats.brands}+`, label: 'Hãng xe' },
-                { value: '30+', label: 'Thông số / xe' },
-              ].map(({ value, label }) => (
-                <div key={label} className="bg-white/5 border border-white/10 rounded-xl py-3 px-2">
-                  <p className="text-2xl font-bold text-white">{value}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI CTA strip */}
-      <section className="bg-gradient-to-r from-red-600 to-red-700 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🤖</span>
-            <div>
-              <p className="font-semibold text-sm">Chưa biết chọn xe nào?</p>
-              <p className="text-red-100 text-xs">AI sẽ gợi ý dựa trên ngân sách và nhu cầu của bạn</p>
-            </div>
-          </div>
-          <Link
-            href="/tu-van"
-            className="bg-white text-red-600 font-bold px-6 py-2.5 rounded-xl hover:bg-red-50 transition text-sm whitespace-nowrap"
-          >
-            Bắt đầu tư vấn →
-          </Link>
-        </div>
-      </section>
-
-      {/* Popular models */}
-      <section className="max-w-6xl mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Xe xem nhiều nhất</h2>
-            <p className="text-sm text-gray-500 mt-1">Cập nhật thông số kỹ thuật chi tiết</p>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/o-to" className="text-sm text-red-600 hover:underline font-medium">Ô tô</Link>
-            <span className="text-gray-300">·</span>
-            <Link href="/xe-may" className="text-sm text-red-600 hover:underline font-medium">Xe máy</Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {popularModels.map((model: any) => {
-            const specCount = getSpecCount(model)
-            const isBike = model.brand?.vehicle_type === 'bike'
+      {/* ââ Expert selector ââ */}
+      <div className="max-w-3xl mx-auto w-full px-4 mb-4">
+        <div className="grid grid-cols-3 gap-3">
+          {EXPERTS.map(expert => {
+            const isActive = activeExpert.id === expert.id
+            const hasHistory = messagesByExpert[expert.id].length > 0
             return (
-              <Link
-                key={model.id}
-                href={`/xe/${model.slug}`}
-                className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
+              <button
+                key={expert.id}
+                onClick={() => switchExpert(expert)}
+                className={`relative rounded-2xl border p-3 text-left transition-all duration-200 ${
+                  isActive
+                    ? `${expert.activeBorder} ${expert.activeBg}`
+                    : 'border-white/10 bg-white/[0.03] hover:bg-white/5 hover:border-white/20'
+                }`}
               >
-                {model.thumbnail_url ? (
-                  <div className="overflow-hidden">
-                    <img
-                      src={model.thumbnail_url}
-                      alt={model.name}
-                      className="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
-                    />
+                <div className="flex items-start gap-2">
+                  <span className="text-2xl leading-none mt-0.5">{expert.icon}</span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white text-sm leading-tight">{expert.name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5 leading-tight hidden sm:block line-clamp-2">{expert.role}</p>
                   </div>
-                ) : (
-                  <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <span className="text-4xl opacity-30">{VEHICLE_EMOJI[model.brand?.vehicle_type || 'car']}</span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <p className="text-xs text-gray-400 mb-0.5">{model.brand?.name}</p>
-                  <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-2">{model.name}</h3>
-                  <p className="text-red-600 font-bold text-sm">{getModelPrice(model)}</p>
-                  {specCount > 0 && (
-                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                      {specCount} thông số
-                    </p>
-                  )}
                 </div>
-              </Link>
+                {/* Online dot */}
+                <span className={`absolute top-2.5 right-2.5 w-2 h-2 rounded-full ${
+                  isActive ? 'bg-green-400 shadow-lg shadow-green-400/50' : hasHistory ? 'bg-gray-500' : 'bg-gray-700'
+                }`} />
+              </button>
             )
           })}
         </div>
-      </section>
+      </div>
 
-      {/* Brands */}
-      <section className="bg-white border-y border-gray-100 py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Car brands */}
-          <div className="mb-10">
-            <div className="flex justify-between items-center mb-5">
-              <h2 className="text-xl font-bold text-gray-900">🚗 Hãng ô tô</h2>
-              <Link href="/o-to" className="text-sm text-red-600 hover:underline font-medium">Xem tất cả →</Link>
+      {/* ââ Chat window ââ */}
+      <div className="flex-1 max-w-3xl mx-auto w-full px-4 flex flex-col">
+        {/* Chat card */}
+        <div
+          className={`rounded-2xl border bg-gray-900/60 backdrop-blur flex flex-col overflow-hidden ${activeExpert.activeBorder} border-opacity-40`}
+          style={{ minHeight: '400px', maxHeight: '58vh' }}
+        >
+          {/* Chat header bar */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-white/[0.03] flex-shrink-0">
+            <span className="text-xl">{activeExpert.icon}</span>
+            <div>
+              <p className="font-semibold text-white text-sm">{activeExpert.name}</p>
+              <p className="text-xs text-gray-400">{activeExpert.role}</p>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
-              {carBrands.map((brand) => (
-                <Link
-                  key={brand.id}
-                  href={`/hang/${brand.slug}`}
-                  className="flex flex-col items-center p-2 bg-gray-50 rounded-xl hover:bg-red-50 hover:border-red-200 border border-transparent transition group"
-                >
-                  <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm mb-1.5 group-hover:shadow-md transition">
-                    <span className="text-xs font-bold text-gray-500 group-hover:text-red-600">
-                      {brand.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-600 text-center leading-tight group-hover:text-red-600">{brand.name}</span>
-                </Link>
-              ))}
+            <div className="ml-auto flex items-center gap-1.5 text-xs text-green-400">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+              Trá»±c tuyáº¿n
             </div>
           </div>
 
-          {/* Bike brands */}
-          <div>
-            <div className="flex justify-between items-center mb-5">
-              <h2 className="text-xl font-bold text-gray-900">🏍️ Hãng xe máy</h2>
-              <Link href="/xe-may" className="text-sm text-red-600 hover:underline font-medium">Xem tất cả →</Link>
-            </div>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
-              {bikeBrands.map((brand) => (
-                <Link
-                  key={brand.id}
-                  href={`/hang/${brand.slug}`}
-                  className="flex flex-col items-center p-2 bg-gray-50 rounded-xl hover:bg-red-50 hover:border-red-200 border border-transparent transition group"
-                >
-                  <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm mb-1.5 group-hover:shadow-md transition">
-                    <span className="text-xs font-bold text-gray-500 group-hover:text-red-600">
-                      {brand.name.substring(0, 2).toUpperCase()}
-                    </span>
+          {/* Messages area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {displayMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-sm mr-2 flex-shrink-0 mt-0.5">
+                    {activeExpert.icon}
                   </div>
-                  <span className="text-xs text-gray-600 text-center leading-tight group-hover:text-red-600">{brand.name}</span>
-                </Link>
-              ))}
-            </div>
+                )}
+                <div
+                  className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                    msg.role === 'user'
+                      ? 'bg-white text-gray-900 rounded-br-sm'
+                      : 'bg-gray-800 text-gray-100 rounded-bl-sm'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-sm mr-2 flex-shrink-0">
+                  {activeExpert.icon}
+                </div>
+                <div className="bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
           </div>
         </div>
-      </section>
 
-      {/* AI deep dive */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-red-600/15 rounded-full blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl" />
+        {/* ââ Suggestion chips (shown only on empty chat) ââ */}
+        {messages.length === 0 && (
+          <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+            {activeExpert.chips.map(chip => (
+              <button
+                key={chip}
+                onClick={() => sendMessage(chip)}
+                disabled={loading}
+                className="flex-shrink-0 text-xs bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white rounded-xl px-3 py-2 transition disabled:opacity-40"
+              >
+                {chip}
+              </button>
+            ))}
           </div>
-          <div className="relative">
-            <div className="w-16 h-16 bg-red-600/20 border border-red-500/30 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-5">
-              🤖
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">Tư vấn xe bằng AI</h2>
-            <p className="text-gray-300 mb-8 text-lg max-w-xl mx-auto">
-              Cho biết ngân sách, nhu cầu và mục đích sử dụng — AI phân tích toàn bộ cơ sở dữ liệu để gợi ý xe phù hợp nhất.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-              {[
-                'Xe gia đình dưới 600 triệu',
-                'Xe tay ga cho nữ',
-                'Xe điện giá rẻ nhất',
-              ].map(q => (
-                <Link
-                  key={q}
-                  href={`/tu-van?q=${encodeURIComponent(q)}`}
-                  className="bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-gray-200 hover:text-white transition"
-                >
-                  {q}
-                </Link>
-              ))}
-            </div>
-            <Link
-              href="/tu-van"
-              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold px-10 py-4 rounded-2xl text-lg transition shadow-lg shadow-red-900/30"
-            >
-              Bắt đầu tư vấn miễn phí →
-            </Link>
+        )}
+
+        {/* ââ Input bar ââ */}
+        <div className="mt-3 mb-8 flex gap-2 items-end">
+          <div className="flex-1">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onInput={handleInput}
+              placeholder={activeExpert.placeholder}
+              rows={1}
+              disabled={loading}
+              className="w-full bg-gray-800 border border-white/10 focus:border-white/30 rounded-2xl px-4 py-3 text-sm text-white placeholder-gray-500 resize-none outline-none transition"
+              style={{ minHeight: '48px', maxHeight: '140px' }}
+            />
           </div>
+          <button
+            onClick={() => sendMessage(input)}
+            disabled={!input.trim() || loading}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition flex-shrink-0 bg-gradient-to-br ${activeExpert.sendGradient} disabled:opacity-40 disabled:cursor-not-allowed shadow-lg`}
+          >
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
         </div>
-      </section>
+      </div>
     </div>
   )
 }
