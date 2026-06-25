@@ -57,7 +57,7 @@ const STATS = [
   { value: '1000+', label: 'Mẫu xe trong cơ sở dữ liệu' },
   { value: '43', label: 'Thương hiệu ô tô & xe máy' },
   { value: '3', label: 'Chuyên gia AI chuyên biệt' },
-  { value: '24/7', label: 'Ph!�ản hồi tức tườ, mãi lúc' },
+  { value: '24/7', label: 'Phản hồi tức thì, mọi lúc' },
 ]
 
 function detectExpert(text: string): ExpertId {
@@ -285,204 +285,839 @@ export default function HomePage() {
             >
               Đặt câu hỏi về bất kỳ loại xe nào — mua xe, kỹ thuật, hay tài
               chính. AI sẽ tự động nhận diện và kết nối bạn với chuyên gia phù
-              h8o���H�ۙ���H�p�K�������ʈ�X]\�H�\�
-��B�]���[O^�\�^N�	ٛ^	���\�L�X\��[����N�
+              hợp trong vài giây.
+            </p>
 
-��^ܘ\�	�ܘ\	��_B�����X�ێ�	�'���X�[�	�1��n�[�]XHI�K��X�ێ�	�'�)��X�[�	�8n���n���n�Hxn�]	�K��X�ێ�	�'�	�X�[�	�0�H�0�[�	��n���xn��I�K�K�X\
+            {/* Feature chips */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                marginBottom: 44,
+                flexWrap: 'wrap',
+              }}
+            >
+              {[
+                { icon: '🚗', label: 'Tư vấn mua xe' },
+                { icon: '🔧', label: 'Hỗ trợ kỹ thuật' },
+                { icon: '💰', label: 'Tài chính & Bảo hiểm' },
+              ].map((c) => (
+                <div
+                  key={c.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 7,
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(255,255,255,0.04)',
+                    borderRadius: 999,
+                    padding: '8px 16px',
+                    fontSize: 13,
+                    color: '#d1d5db',
+                  }}
+                >
+                  <span>{c.icon}</span>
+                  <span>{c.label}</span>
+                </div>
+              ))}
+            </div>
 
-�HO�
-�]���^O^�˛X�[B��[O^�\�^N�	�[�[�KY�^	��[Yے][\Έ	��[�\����\�
-���ܙ\��	�\��Y�ؘJ�MK�MK�MK�JI���X��ܛ�[��	ܙؘJ�MK�MK�MK�
-I���ܙ\��Y]\ΈNNK�Y[�Έ	�M�	���۝�^�N�L����܎�	��Y
-Y���_B����[���˚X�۟O��[����[���˛X�[O��[����]���
-J_B��]�����ʈ�H
-��B�]��[O^��\�^N�	ٛ^	��\�L�[Yے][\Έ	��[�\��_O���]ۂ�ې�X��^�
-HO���]�Y���\��[�˜�ܛ�[�՚Y]���Z]�[܎�	��[��	�JB�B��[O^��X��ܛ�[��	�[�X\�YܘYY[�
-L�YY��Y�
+            {/* CTA */}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button
+                onClick={() =>
+                  chatRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '14px 30px',
+                  color: '#fff',
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  boxShadow: '0 0 30px rgba(239,68,68,0.25)',
+                }}
+              >
+                Bắt đầu hỏi ngay
+                <svg
+                  width="15"
+                  height="15"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
+              </button>
+              <span style={{ fontSize: 13, color: '#4b5563' }}>
+                Miễn phí · Không cần đăng ký
+              </span>
+            </div>
+          </div>
 
+          {/* ── Right: Visual ── */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'relative',
+              minHeight: 460,
+            }}
+          >
+            {/* Outer ring */}
+            <div
+              style={{
+                width: 400,
+                height: 400,
+                borderRadius: '50%',
+                border: '1px solid rgba(239,68,68,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+              }}
+            >
+              {/* Inner ring */}
+              <div
+                style={{
+                  width: 310,
+                  height: 310,
+                  borderRadius: '50%',
+                  border: '1px solid rgba(239,68,68,0.18)',
+                  background:
+                    'radial-gradient(circle, rgba(239,68,68,0.07) 0%, transparent 70%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {/* Center icon */}
+                <div
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 30,
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 56,
+                  }}
+                >
+                  🚗
+                </div>
+              </div>
 
-�̍���I���ܙ\��	ۛۙI���ܙ\��Y]\ΈL��Y[�Έ	�M�	����܎�	�ٙ�����۝�^�N�MK��۝�ZY��
-���\��܎�	��[�\���\�^N�	�[�[�KY�^	��[Yے][\Έ	��[�\����\�����Y�Έ	���ؘJ��K
-�
-���JI��_B����n��1$xn��H8n��H��^H�ݙ��YH�MH�ZY�H�MH��[H��ۙH�����OH��\��[���܈�����U�YH�������S[�X�\H���[������S[�Z��[�H���[���Y]Л�H�����]H�LL�
-]�MMHL�
-�
-�
-�MȈϏ�ݙς�؝]ۏ���[��[O^���۝�^�N�L���܎�	���MM���_O��Zxn�[�0�H0���0����n�ۈ[����B���[����]����]�����ʈ�Y���\�X[
-��B�]���[O^��^�K�\�^N�	ٛ^	���\�Y�P�۝[��	��[�\���[Yے][\Έ	��[�\�����][ێ�	ܙ[]]�I��Z[�ZY��
+              {/* Floating card: Mau xe */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 30,
+                  right: -40,
+                  background: 'rgba(15,15,10,0.85)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  minWidth: 150,
+                }}
+              >
+                <div
+                  style={{ fontSize: 24, fontWeight: 800, color: '#ef4444' }}
+                >
+                  1000+
+                </div>
+                <div
+                  style={{ fontSize: 12, color: '#9ca3af', marginTop: 3 }}
+                >
+                  Mẫu xe trong database
+                </div>
+                <div
+                  style={{
+                    marginTop: 8,
+                    fontSize: 11,
+                    color: '#4ade80',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: '50%',
+                      background: '#4ade80',
+                    }}
+                  />
+                  Luôn cập nhật
+                </div>
+              </div>
 
-��_B���]��[O^���Y�
-ZY��
-�ܙ\��Y]\Έ	�L	I��ܙ\��	�\��Y�ؘJ��K
-�
-��L�I�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\����][ێ�	ܙ[]]�I�_O��]��[O^���Y��LZY���L�ܙ\��Y]\Έ	�L	I��ܙ\��	�\��Y�ؘJ��K
-�
-��N
-I��X��ܛ�[��	ܘYX[YܘYY[�
-�\��K�ؘJ��K
-�
-��
-�H	K�[��\�[�
-�	JI�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\��_O��]��[O^���Y�L�ZY��L��ܙ\��Y]\Έ��X��ܛ�[��	ܙؘJ��K
-�
-��JI��ܙ\��	�\��Y�ؘJ��K
-�
-���JI�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���۝�^�N�
-M�_O�'���]����]����]��[O^����][ێ�	�X���]I�����Y��M�X��ܛ�[��	ܙؘJMKMKL�
-JI��X�����[\��	؛\�L�
-I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�JI��ܙ\��Y]\ΈMY[�Έ	�MN	�Z[��Y�ML_O��]��[O^���۝�^�N���۝�ZY����܎�	��Y�
+              {/* Floating card: Chuyen gia */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 50,
+                  left: -50,
+                  background: 'rgba(15,15,10,0.85)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  minWidth: 160,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
+                  {['🚗', '🔧', '💰'].map((ic) => (
+                    <span
+                      key={ic}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 13,
+                      }}
+                    >
+                      {ic}
+                    </span>
+                  ))}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#f9fafb',
+                  }}
+                >
+                  3 Chuyên gia AI
+                </div>
+                <div
+                  style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}
+                >
+                  Mua xe · Kỹ thuật · Tài chính
+                </div>
+              </div>
 
+              {/* Floating card: Phan hoi */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 140,
+                  right: -60,
+                  background: 'rgba(15,15,10,0.85)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(16,185,129,0.2)',
+                  borderRadius: 14,
+                  padding: '12px 16px',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: '#10b981',
+                    marginBottom: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: '50%',
+                      background: '#10b981',
+                    }}
+                  />
+                  AI đang trực tuyến
+                </div>
+                <div style={{ fontSize: 13, color: '#d1d5db' }}>
+                  Phản hồi tức thì
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-	�_O�L
-��]���]��[O^���۝�^�N�L���܎�	��X�L�Y��X\��[����_O�xn��HH�ۙ�]X�\�O�]���]��[O^��X\��[����۝�^�N�LK��܎�	��YN	�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�
-_O���[��[O^���Y�
-KZY��
-K�ܙ\��Y]\Έ	�L	I��X��ܛ�[��	��YN	�_Hς�p���n�\�8n�]��]����]����]��[O^����][ێ�	�X���]I����N�
-LY��ML�X��ܛ�[��	ܙؘJMKMKL�
-JI��X�����[\��	؛\�L�
-I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�JI��ܙ\��Y]\ΈMY[�Έ	�MN	�Z[��Y�M�_O��]��[O^��\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�X\��[����N�
-�_O�����'���	�'�)��	�'�	�K�X\
+      {/* ══ STATS BAR ══ */}
+      <div
+        style={{
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(255,255,255,0.015)',
+          padding: '30px 6%',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+            gap: 24,
+          }}
+        >
+          {STATS.map((s) => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  background:
+                    'linear-gradient(135deg, #ef4444, #f97316)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                {s.value}
+              </div>
+              <div
+                style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}
+              >
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-X�HO�
-��[��^O^�X�H�[O^���Y��ZY����ܙ\��Y]\Έ	�L	I��X��ܛ�[��	ܙؘJ�MK�MK�MK�
-I�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���۝�^�N�L�_O��X�O��[���
-J_B��]���]��[O^���۝�^�N�L��۝�ZY��
-���܎�	�َY�Y���_O���^pꛈ�XHRO�]���]��[O^���۝�^�N�LK��܎�	�͘�̎	�X\��[����_O�]XHH0���n�Hxn�]0��0�H�0�[��]����]����]��[O^����][ێ�	�X���]I���M�Y��M��X��ܛ�[��	ܙؘJMKMKL�
-JI��X�����[\��	؛\�L�
-I��ܙ\��	�\��Y�ؘJM�N
-KL�K��I��ܙ\��Y]\ΈMY[�Έ	�L�M�	�_O��]��[O^���۝�^�N�LK��܎�	��L�NI�X\��[����N�
-\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�
-H_O���[��[O^���Y�
-KZY��
-K�ܙ\��Y]\Έ	�L	I��X��ܛ�[��	��L�NI�_Hς�RH1$X[����8n�X�^xn�[���]���]��[O^���۝�^�N�L���܎�	��Y
-Y��_O�[�8n��H8n�X�0��]����]����]����]����]�����X�[ۏ����ʈ�U��T�
-��B�]��[O^���ܙ\���	�\��Y�ؘJ�MK�MK�MK�
-�I��ܙ\����N�	�\��Y�ؘJ�MK�MK�MK�
-�I��X��ܛ�[��	ܙؘJ�MK�MK�MK�MJI�Y[�Έ	��
-�I�_O��]��[O^��X^�Y�L�X\��[��	�]]��\�^N�	ٛ^	��\�Y�P�۝[��	��X�KX\��[�	��]�ܘ\�	�ܘ\	��\��_O����U˛X\
+      {/* ══ CHAT SECTION ══ */}
+      <section ref={chatRef} style={{ padding: '80px 6%' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          {/* Section header */}
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <h2
+              style={{
+                fontSize: 'clamp(24px, 3vw, 34px)',
+                fontWeight: 700,
+                marginBottom: 10,
+              }}
+            >
+              Hỏi bất kỳ điều gì về xe
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: 15 }}>
+              AI tự nhận diện câu hỏi và kết nối với chuyên gia phù hợp
+            </p>
+          </div>
 
-�HO�
-�]��^O^�˛X�[H�[O^��^[Yێ�	��[�\��_O��]��[O^���۝�^�N���۝�ZY���X��ܛ�[��	�[�X\�YܘYY[�
-L�YY��Y�
+          {/* Expert badge */}
+          {hasMessages && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '6px 16px',
+                  borderRadius: 999,
+                  fontSize: 13,
+                  background: expert.bg,
+                  border: `1px solid ${expert.accent}50`,
+                  color: expert.accent,
+                }}
+              >
+                <span>{expert.icon}</span>
+                <span style={{ fontWeight: 500 }}>{expert.name}</span>
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: expert.accent,
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
+          {/* Messages */}
+          {hasMessages && (
+            <div
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 18,
+                padding: '20px 20px 16px',
+                marginBottom: 10,
+                maxHeight: 400,
+                overflowY: 'auto',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
+                }}
+              >
+                {messages.map((msg, i) => {
+                  const msgExp = msg.expert
+                    ? EXPERTS[msg.expert]
+                    : expert
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        justifyContent:
+                          msg.role === 'user' ? 'flex-end' : 'flex-start',
+                        gap: 10,
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      {msg.role === 'assistant' && (
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            background: msgExp.bg,
+                            border: `1px solid ${msgExp.accent}40`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 15,
+                            flexShrink: 0,
+                            marginTop: 2,
+                          }}
+                        >
+                          {msgExp.icon}
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          maxWidth: '78%',
+                          borderRadius:
+                            msg.role === 'user'
+                              ? '18px 18px 4px 18px'
+                              : '18px 18px 18px 4px',
+                          padding: '11px 15px',
+                          fontSize: 14,
+                          lineHeight: 1.65,
+                          whiteSpace: 'pre-wrap',
+                          ...(msg.role === 'user'
+                            ? { background: '#ffffff', color: '#111827' }
+                            : {
+                                background: 'rgba(255,255,255,0.07)',
+                                color: '#e5e7eb',
+                              }),
+                        }}
+                      >
+                        {msg.content}
+                      </div>
+                    </div>
+                  )
+                })}
 
-َM��M�I��X��]�X��ܛ�[��\�	�^	��X��]^�[��܎�	��[��\�[�	�_O��˝�[Y_O�]���]��[O^���۝�^�N�L���܎�	�͘�̎	�X\��[���
-_O��˛X�[O�]����]���
-J_B��]����]�����ʈ�U�P�Sӈ
-��B��X�[ۈ�Y�^��]�Y�H�[O^��Y[�Έ	�
-�I�_O��]��[O^��X^�Y�
-͌X\��[��	�]]��_O��]��[O^��^[Yێ�	��[�\��X\��[����N�͈_O����[O^���۝�^�N�	��[\
-�ݝ��
-I��۝�ZY��
-�X\��[����N�L_O�8n��H�n�]�n��1$Zxn�[����n�HO�����[O^����܎�	�͘�̎	��۝�^�N�MH_O�RH8n�H�8n�[�xn�ۈ��H8n��H��H�n���n�ZH�n��H�^pꛈ�XH0�H8n������]�����\�Y\��Y�\�	��
-�]��[O^��\�^N�	ٛ^	��\�Y�P�۝[��	��[�\��X\��[����N�M_O��]��[O^��\�^N�	�[�[�KY�^	�[Yے][\Έ	��[�\���\�Y[�Έ	͜M�	��ܙ\��Y]\ΈNNK�۝�^�N�L��X��ܛ�[��^\�����ܙ\��\��Y	�^\��X��[�ML��܎�^\��X��[�_O���[���^\��X�۟O��[����[��[O^���۝�ZY��
-L_O��^\���[Y_O��[����[��[O^���Y�
-�ZY��
-��ܙ\��Y]\Έ	�L	I��X��ܛ�[��^\��X��[�_Hς��]����]���
-_B���\�Y\��Y�\�	��
-�]��[O^���X��ܛ�[��	ܙؘJ�MK�MK�MK��I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�
-�I��ܙ\��Y]\ΈNY[�Έ	̌�M�	�X\��[����N�LX^ZY��
-ݙ\����N�	�]]��_O��]��[O^��\�^N�	ٛ^	��^\�X�[ێ�	���[[���\�M�_O���Y\��Y�\˛X\
+                {loading && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-start',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        background: expert.bg,
+                        border: `1px solid ${expert.accent}40`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 15,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {expert.icon}
+                    </div>
+                    <div
+                      style={{
+                        background: 'rgba(255,255,255,0.07)',
+                        borderRadius: '18px 18px 18px 4px',
+                        padding: '14px 18px',
+                        display: 'flex',
+                        gap: 5,
+                        alignItems: 'center',
+                      }}
+                    >
+                      {[0, 1, 2].map((n) => (
+                        <span
+                          key={n}
+                          style={{
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
+                            background: '#6b7280',
+                            display: 'block',
+                            animation: 'bounce 1.2s infinite',
+                            animationDelay: `${n * 0.15}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div ref={bottomRef} />
+              </div>
+            </div>
+          )}
 
-\��JHO��ۜ�\��^H\�˙^\��VT���\�˙^\�H�^\���]\��
-�]��^O^�_H�[O^��\�^N�	ٛ^	��\�Y�P�۝[��\�˜��HOOH	�\�\���	ٛ^Y[�	��	ٛ^\�\�	��\�L[Yے][\Έ	ٛ^\�\�	�_O���\�˜��HOOH	�\��\�[�	�	��
-�]��[O^���Y�̋ZY��̋�ܙ\��Y]\Έ	�L	I��X��ܛ�[��\��^����ܙ\��\��Y	�\��^�X��[�M\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���۝�^�N�MK�^��[�ΈX\��[����_O��\��^�X�۟O�]���
-_B�]��[O^��X^�Y�	��	I��ܙ\��Y]\Έ\�˜��HOOH	�\�\���	�NN
-N	��	�NNN
-	�Y[�Έ	�L\M\	��۝�^�N�M[�RZY��K��K�]T�X�N�	��K]ܘ\	����\�˜��HOOH	�\�\�����X��ܛ�[��	�ٙ��������܎�	��LLN���H���X��ܛ�[��	ܙؘJ�MK�MK�MK�
-�I���܎�	��MYM�X��JH_O��\�˘�۝[�O�]����]���
-B�J_B���Y[��	��
-�]��[O^��\�^N�	ٛ^	��\�Y�P�۝[��	ٛ^\�\�	��\�L[Yے][\Έ	ٛ^\�\�	�_O��]��[O^���Y�̋ZY��̋�ܙ\��Y]\Έ	�L	I��X��ܛ�[��^\�����ܙ\��\��Y	�^\��X��[�M\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���۝�^�N�MK�^��[�Έ_O��^\��X�۟O�]���]��[O^���X��ܛ�[��	ܙؘJ�MK�MK�MK�
-�I��ܙ\��Y]\Έ	�NNN
-	�Y[�Έ	�MN	�\�^N�	ٛ^	��\�
-K[Yے][\Έ	��[�\��_O����K�K�X\
+          {/* Quick suggestion chips (empty state) */}
+          {!hasMessages && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                marginBottom: 10,
+                flexWrap: 'wrap',
+              }}
+            >
+              {SUGGESTION_CHIPS.map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => sendMessage(chip)}
+                  style={{
+                    fontSize: 13,
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    color: '#9ca3af',
+                    borderRadius: 10,
+                    padding: '7px 13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(el) => {
+                    el.currentTarget.style.color = '#e5e7eb'
+                    el.currentTarget.style.background =
+                      'rgba(255,255,255,0.08)'
+                  }}
+                  onMouseLeave={(el) => {
+                    el.currentTarget.style.color = '#9ca3af'
+                    el.currentTarget.style.background =
+                      'rgba(255,255,255,0.04)'
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          )}
 
-�HO�
-��[��^O^۟H�[O^���Y�
-�ZY��
-��ܙ\��Y]\Έ	�L	I��X��ܛ�[��	�͘�̎	�\�^N�	؛����[�[X][ێ�	؛�[��HK���[��[�]I�[�[X][ۑ[^N�	ۈ
-��M_\�_Hς�
-J_B��]����]���
-_B�]��Y�^؛��T�Y�Hς��]����]���
-_B���Z\�Y\��Y�\�	��
-�]��[O^��\�^N�	ٛ^	��\�X\��[����N�L�^ܘ\�	�ܘ\	�_O����Q��T�Sӗ��T�X\
+          {/* Expert switcher (chat state) */}
+          {hasMessages && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                marginBottom: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              {(Object.values(EXPERTS) as Expert[]).map((e) => {
+                const isActive = activeExpert === e.id
+                return (
+                  <button
+                    key={e.id}
+                    onClick={() => {
+                      setActiveExpert(e.id)
+                      textareaRef.current?.focus()
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '5px 12px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      ...(isActive
+                        ? {
+                            background: e.bg,
+                            border: `1px solid ${e.accent}60`,
+                            color: e.accent,
+                          }
+                        : {
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#9ca3af',
+                          }),
+                    }}
+                  >
+                    <span>{e.icon}</span>
+                    <span>{e.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
-�\
-HO�
-��]ۈ�^O^��\Hې�X��^�
-HO��[�Y\��Y�J�\
-_H�[O^���۝�^�N�L��X��ܛ�[��	ܙؘJ�MK�MK�MK�
-I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�JI���܎�	��X�L�Y���ܙ\��Y]\ΈLY[�Έ	��L�	��\��܎�	��[�\���[��][ێ�	�[�M\��_Hۓ[�\�Q[�\�^�[
-HO��[��\��[�\��]��[K���܈H	��MYM�X���[��\��[�\��]��[K��X��ܛ�[�H	ܙؘJ�MK�MK�MK�
-I�_Hۓ[�\�SX]�O^�[
-HO��[��\��[�\��]��[K���܈H	��X�L�Y���[��\��[�\��]��[K��X��ܛ�[�H	ܙؘJ�MK�MK�MK�
-I�_O���\O؝]ۏ��
-J_B��]���
-_B���\�Y\��Y�\�	��
-�]��[O^��\�^N�	ٛ^	��\�
-�X\��[����N��^ܘ\�	�ܘ\	�_O���ؚ�X���[Y\�VT��H\�^\��JK�X\
+          {/* Chat input */}
+          <div
+            style={{
+              background: '#111110',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: '0 0 40px rgba(0,0,0,0.4)',
+            }}
+          >
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onInput={handleInput}
+              placeholder={
+                hasMessages
+                  ? 'Tiếp tục h:...'
+                  : 'Hỏi về xe, giá care, kỹ thuật hay tài chính...'
+              }
+              rows={1}
+              disabled={loading}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                padding: '17px 20px 8px',
+                fontSize: 15,
+                color: '#fff',
+                resize: 'none',
+                outline: 'none',
+                minHeight: 58,
+                maxHeight: 140,
+                boxSizing: 'border-box',
+                opacity: loading ? 0.5 : 1,
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '6px 16px 14px',
+              }}
+            >
+              <span style={{ fontSize: 12, color: '#374151' }}>
+                AI tự chọn chuyên gia phù hợp
+              </span>
+              <button
+                onClick={() => sendMessage(input)}
+                disabled={!input.trim() || loading}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background:
+                    input.trim() && !loading ? '#ef4444' : '#1f2937',
+                  border: 'none',
+                  cursor:
+                    input.trim() && !loading ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.15s',
+                  boxShadow:
+                    input.trim() && !loading
+                      ? '0 0 16px rgba(239,68,68,0.35)'
+                      : 'none',
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
+                  <line x1="12" y1="19" x2="12" y2="5" />
+                  <polyline points="5 12 12 5 19 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-JHO��ۜ�\�X�]�HHX�]�Q^\�OOHK�Y��]\��
-��]ۈ�^O^�K�YHې�X��^�
-HO���]X�]�Q^\�
-K�Y
-N�^\�XT�Y���\��[�˙���\�
-H_H�[O^��\�^N�	�[�[�KY�^	�[Yے][\Έ	��[�\���\�
-KY[�Έ	�\L�	��ܙ\��Y]\ΈNNK�۝�^�N�L��\��܎�	��[�\���[��][ێ�	�[�M\�����\�X�]�H���X��ܛ�[��K����ܙ\��\��Y	�K�X��[�M���܎�K�X��[�H���X��ܛ�[��	ܙؘJ�MK�MK�MK��I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�JI���܎�	��X�L�Y��JH_O���[���K�X�۟O��[���[���K��[Y_O��[���؝]ۏ��
-B�J_B��]���
-_B��]��[O^���X��ܛ�[��	��LLLLL	��ܙ\��	�\��Y�ؘJ�MK�MK�MK�L�I��ܙ\��Y]\ΈM�ݙ\���Έ	�Y[�����Y�Έ	�
-�ؘJ�
-I�_O��^\�XH�Y�^�^\�XT�Y�H�[YO^�[�]Hې�[��O^�JHO��][�]
-K�\��]��[YJ_Hے�^Q�ۏ^�[�R�^Q�۟Hے[�]^�[�R[�]HX�Z�\�^�\�Y\��Y�\��	�xn��8n�X�8n��K�����	�8n��H�n�HK�p�H�n�K�n�Hxn�]^H0�H�0�[�����H����^�_H\�X�Y^��Y[��H�[O^���Y�	�L	I��X��ܛ�[��	��[��\�[�	��ܙ\��	ۛۙI�Y[�Έ	�M��	��۝�^�N�MK��܎�	�ٙ����\�^�N�	ۛۙI��][�N�	ۛۙI�Z[�ZY��
-NX^ZY��M���^�[�Έ	؛ܙ\�X��	��۝�[Z[N�	�[�\�]	��X�]N��Y[����H�H_Hς�]��[O^��\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��X�KX�]�Y[��Y[�Έ	͜M�M	�_O���[��[O^���۝�^�N�L���܎�	����MLI�_O�RH8n�H�8n�[��^pꛈ�XH0�H8n����[����]ۈې�X��^�
-HO��[�Y\��Y�J[�]
-_H\�X�Y^�Z[�]��[J
-H�Y[��H�[O^���Y�͋ZY��͋�ܙ\��Y]\ΈL�X��ܛ�[��[�]��[J
-H	��[�Y[���	��Y�
+      <section
+        style={{
+          padding: '60px 6% 100px',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+          background:
+            'linear-gradient(to bottom, transparent, rgba(239,68,68,0.03))',
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h2
+              style={{
+                fontSize: 'clamp(22px, 2.5vw, 30px)',
+                fontWeight: 700,
+                marginBottom: 10,
+              }}
+            >
+              3 Chuyên gia AI chuyên biệt
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: 14 }}>
+              Mỗi chuyên gia được huấn luyện với dữ liệu xe Việt Nam thực tế
+            </p>
+          </div>
 
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: 20,
+            }}
+          >
+            {(Object.values(EXPERTS) as Expert[]).map((e) => (
+              <div
+                key={e.id}
+                onClick={() => {
+                  setActiveExpert(e.id)
+                  chatRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 18,
+                  padding: '30px 26px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+                onMouseEnter={(el) => {
+                  el.currentTarget.style.background = e.bg
+                  el.currentTarget.style.borderColor = `${e.accent}35`
+                  el.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={(el) => {
+                  el.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                  el.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+                  el.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                {/* Icon */}
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    background: e.bg,
+                    border: `1px solid ${e.accent}35`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 24,
+                    marginBottom: 18,
+                  }}
+                >
+                  {e.icon}
+                </div>
 
-	��	��Y��L����ܙ\��	ۛۙI��\��܎�[�]��[J
-H	��[�Y[���	��[�\���	ۛ�X[��Y	�\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���[��][ێ�	�[�M\�����Y�Έ[�]��[J
-H	��[�Y[���	�M��ؘJ��K
-�
-���JI��	ۛۙI�_O��ݙ��YH�M��ZY�H�M���[H��ۙH�����OH�ٙ�������U�YH�������S[�X�\H���[������S[�Z��[�H���[���Y]Л�H�����[�HOH�L��LOH�NH��H�L��L�H�H�Ϗ�[[�H�[��H�HL�L�
-HNHL��Ϗ�ݙς�؝]ۏ���]����]����]�����X�[ۏ����ʈ�PUT�T�
-��B��X�[ۈ�[O^��Y[�Έ	͌
-�HL	��ܙ\���	�\��Y�ؘJ�MK�MK�MK�
-JI��X��ܛ�[��	�[�X\�YܘYY[�
-����K�[��\�[��ؘJ��K
-�
-���JI�_O��]��[O^��X^�Y�L�X\��[��	�]]��_O��]��[O^��^[Yێ�	��[�\��X\��[����N�
-_O����[O^���۝�^�N�	��[\
-����]���
-I��۝�ZY��
-�X\��[����N�L_O���^pꛈ�XHRH�^pꛈ�xn�������[O^����܎�	�͘�̎	��۝�^�N�M_O�xn��H�^pꛈ�XH1$q�8n���xn�[�^xn�[��n��H8n��xn��HH�xn���[H8n�X�8n������]���]��[O^��\�^N�	�ܚY	�ܚY[\]P��[[�Έ	ܙ\X]
-]]�Y�]Z[�X^
-�Y��JI��\��_O���ؚ�X���[Y\�VT��K�X\
+                {/* Title */}
+                <h3
+                  style={{
+                    fontSize: 17,
+                    fontWeight: 600,
+                    marginBottom: 10,
+                    color: '#f9fafb',
+                  }}
+                >
+                  {e.name}
+                </h3>
 
-JHO�
-�]��^O^�K�YHې�X��^�
-HO���]X�]�Q^\�
-K�Y
-N��]�Y���\��[�˜�ܛ�[�՚Y]���Z]�[܎�	��[��	�JH_H�[O^���X��ܛ�[��	ܙؘJ�MK�MK�MK��I��ܙ\��	�\��Y�ؘJ�MK�MK�MK�
-�I��ܙ\��Y]\ΈNY[�Έ	����	��\��܎�	��[�\���[��][ێ�	�[������][ێ�	ܙ[]]�I�ݙ\���Έ	�Y[��_Hۓ[�\�Q[�\�^�[
-HO��[��\��[�\��]��[K��X��ܛ�[�HK����[��\��[�\��]��[K��ܙ\���܈H	�K�X��[�L�X�[��\��[�\��]��[K��[�ٛܛHH	��[��]VJL�
-I�_Hۓ[�\�SX]�O^�[
-HO��[��\��[�\��]��[K��X��ܛ�[�H	ܙؘJ�MK�MK�MK��I��[��\��[�\��]��[K��ܙ\���܈H	ܙؘJ�MK�MK�MK�
-�I��[��\��[�\��]��[K��[�ٛܛHH	��[��]VJ
-I�_O��]��[O^���Y�
-L�ZY��
-L��ܙ\��Y]\ΈM�X��ܛ�[��K����ܙ\��\��Y	�K�X��[�L�X\�^N�	ٛ^	�[Yے][\Έ	��[�\���\�Y�P�۝[��	��[�\���۝�^�N��X\��[����N�N_O��K�X�۟O�]�����[O^���۝�^�N�M��۝�ZY��
-�X\��[����N�L��܎�	�َY�Y���_O��K��[Y_O�ς��[O^����܎�	�͘�̎	��۝�^�N�L�[�RZY��K��KX\��[����N��_O��K�\��O���]��[O^��\�^N�	�[�[�KY�^	�[Yے][\Έ	��[�\���\�
-��۝�^�N�L���܎�K�X��[��۝�ZY��
-L_O���n��1$xn��H8n��B�ݙ��YH�LȈZY�H�LȈ�[H��ۙH�����OH��\��[���܈�����U�YH���H�����S[�X�\H���[������S[�Z��[�H���[���Y]Л�H�����]H�MHL�MLL�
-[
-�
-�M�
-ȈϏ�ݙς��]����]���
-J_B��]����]�����X�[ۏ����[O����^Y��[Y\���[��H	K	KL	H��[�ٛܛN��[��]VJ
-N�B�
-	H��[�ٛܛN��[��]VJM\
-N�B�B�
-��X\��[���Y[�Έ���\�^�[�Έ�ܙ\�X���B��]ۈ��۝Y�[Z[N�[�\�]�B�^\�XH��۝Y�[Z[N�[�\�]�B�O��[O���]���
-B�B
+                {/* Desc */}
+                <p
+                  style={{
+                    color: '#6b7280',
+                    fontSize: 13,
+                    lineHeight: 1.65,
+                    marginBottom: 20,
+                  }}
+                >
+                  {e.desc}
+                </p>
+
+                {/* Link */}
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 13,
+                    color: e.accent,
+                    fontWeight: 500,
+                  }}
+                >
+                  Bắt đầu hỏi
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-5px); }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        button { font-family: inherit; }
+        textarea { font-family: inherit; }
+      `}</style>
+    </div>
+  )
+}
