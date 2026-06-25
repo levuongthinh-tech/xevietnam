@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-/* âââ Expert config âââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* ─── Expert config ─────────────────────────────────────────────────── */
 type ExpertId = 'mua-xe' | 'ky-thuat' | 'tai-chinh'
 
 interface Expert {
@@ -21,49 +21,49 @@ interface Expert {
 const EXPERTS: Expert[] = [
   {
     id: 'mua-xe',
-    name: 'TÆ° váº¥n mua xe',
-    role: 'ChuyÃªn gia chá»n xe phÃ¹ há»£p ngÃ¢n sÃ¡ch & nhu cáº§u',
-    icon: 'ð',
+    name: 'Tư vấn mua xe',
+    role: 'Chuyên gia chọn xe phù hợp ngân sách & nhu cầu',
+    icon: '🚗',
     activeBorder: 'border-red-500',
     activeBg: 'bg-red-500/10',
     sendGradient: 'from-red-500 to-orange-500',
-    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia tÆ° váº¥n mua xe cá»§a XeVietnam. HÃ£y cho tÃ´i biáº¿t ngÃ¢n sÃ¡ch vÃ  nhu cáº§u cá»§a báº¡n â tÃ´i sáº½ gá»£i Ã½ nhá»¯ng dÃ²ng xe phÃ¹ há»£p nháº¥t! ð',
-    placeholder: 'VÃ­ dá»¥: Xe gia ÄÃ¬nh 7 chá» dÆ°á»i 700 triá»u...',
-    chips: ['Xe gia ÄÃ¬nh dÆ°á»i 700 triá»u', 'Xe tay ga cho ná»¯ dÆ°á»i 50 triá»u', 'Xe Äiá»n giÃ¡ re nháº¥t', 'SUV dÆ°á»i 1 táº·'],
+    greeting: 'Xin chào! Tôi là chuyên gia tư vấn mua xe của XeVietnam. Hãy cho tôi biết ngân sách và nhu cầu của bạn — tôi sẽ gợi ý những dòng xe phù hợp nhất! 🚗',
+    placeholder: 'Ví dụ: Xe gia đình 7 chỗ dưới 700 triệu...',
+    chips: ['Xe gia đình dưới 700 triệu', 'Xe tay ga cho nữ dưới 50 triệu', 'Xe điện giá rẻ nhất', 'SUV dưới 1 tỷ'],
   },
   {
     id: 'ky-thuat',
-    name: 'TÆ° táº¥n ká»¹ thuáº­t',
-    role: 'ChuyÃªn gia Äá»ng cÆ£, thÃ´ng sá» & báº£o dÆ°á»¡ng xe',
-    icon: 'ð§',
+    name: 'Tư vấn kỹ thuật',
+    role: 'Chuyên gia động cơ, thông số & bảo dưỡng xe',
+    icon: '🔧',
     activeBorder: 'border-blue-500',
     activeBg: 'bg-blue-500/10',
     sendGradient: 'from-blue-500 to-cyan-500',
-    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia ká»¹ thuáº­t xe. Báº¡n muoá»n há»i vá» thÃ´ng sá» Äá»ng cÆ¢, so sÃ¡nh cÃ´ng nghiá» hay lá»ch báº£o dÆ°á»¡ng? TÃ´i sáºµn sÃ ng giáº£i ÄÃ¡p! ð§',
-    placeholder: 'VÃ­ dá»¥: Hybrid vÃ  xÄng thÆ°á»ng khÃ¡c nhau tháº¿ nÃ o?',
-    chips: ['Toyota Camry Hybrid vs xäng', 'Báº£o dÆ°á»¡ng 10.000 km gá»m nhá»¯ng gÃ¬?', 'Äá»ng cÆ¡ tÄng Ã¡p cÃ³ bá»n khÃ´ng?', 'Xe Äiá»n sáº¡c máº¥t bao lÃ¢u?'],
+    greeting: 'Xin chào! Tôi là chuyên gia kỹ thuật xe. Bạn muốn hỏi về thông số động cơ, so sánh công nghệ hay lịch bảo dưỡng? Tôi sẵn sàng giải đáp! 🔧',
+    placeholder: 'Ví dụ: Hybrid và xăng thường khác nhau thế nào?',
+    chips: ['Toyota Camry Hybrid vs xăng', 'Bảo dưỡng 10.000 km gồm những gì?', 'Động cơ tăng áp có bền không?', 'Xe điện sạc mất bao lâu?'],
   },
   {
     id: 'tai-chinh',
-    name: 'TÃ i chÃ­nh & Báº£o hiá»m',
-    role: 'ChuyÃªn gia vay mua xe, báº£o hiá»m & chi phÃ­ sá» há»¯t',
-    icon: 'ð°',
+    name: 'Tài chính & Bảo hiểm',
+    role: 'Chuyên gia vay mua xe, bảo hiểm & chi phí sở hữu',
+    icon: '💰',
     activeBorder: 'border-emerald-500',
     activeBg: 'bg-emerald-500/10',
     sendGradient: 'from-emerald-500 to-teal-500',
-    greeting: 'Xin chÃ o! TÃ´i lÃ  chuyÃªn gia tÃ i chÃ­nh & báº£o hiá»m xe. TÃ´i cÃ³ thá» giÃºp báº¡n tÃ­nh toÃ¡n khoáº£n vay, phÃ­ báº£o hiá»m vÃ  tá»ng chi phÃ­ sá» há»¯u xe. Há»i tÃ´i Äi! ð°',
-    placeholder: 'VÃ­ dá»¥: Vay 400 triá»u mua xe, tráº£ gÃ³p bao nhiÃªu/thÃ¡ng?',
-    chips: ['Vay 500 triá»u tráº£ trong 5 nÄm', 'Báº£o hiá»m Ã´ tÃ´ cáº§n nhá»¯ng loáº¡i gÃ¬?', 'PhÃ­ trÆ°á»c báº¡ xe má»i tÃ­nh tháº¿ nÃ o?', 'Chi phÃ­ nuÃ´i xe Ã´ tÃ´ hÃ ng thÃ¡ng'],
+    greeting: 'Xin chào! Tôi là chuyên gia tài chính & bảo hiểm xe. Tôi có thể giúp bạn tính toán khoản vay, phí bảo hiểm và tổng chi phí sở hữu xe. Hỏi tôi đi! 💰',
+    placeholder: 'Ví dụ: Vay 400 triệu mua xe, trả góp bao nhiêu/tháng?',
+    chips: ['Vay 500 triệu trả trong 5 năm', 'Bảo hiểm ô tô cần những loại gì?', 'Phí trước bạ xe mới tính thế nào?', 'Chi phí nuôi xe ô tô hàng tháng'],
   },
 ]
 
-/* âââ Message type ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* ─── Message type ──────────────────────────────────────────────────── */
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
-/* âââ Component âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+/* ─── Component ─────────────────────────────────────────────────────── */
 export default function HomePage() {
   const [activeExpert, setActiveExpert] = useState<Expert>(EXPERTS[0])
   const [messagesByExpert, setMessagesByExpert] = useState<Record<ExpertId, Message[]>>({
@@ -118,7 +118,7 @@ export default function HomePage() {
       const data = await res.json()
       const reply: Message = {
         role: 'assistant',
-        content: data.content || 'Xin lá»i, tÃ´i chÆ°a hiá»u cÃ¢u há»i. Báº¡n cÃ³ thá» nÃ³i rÃµ hÆ¡n khÃ´ng?',
+        content: data.content || 'Xin lỗi, tôi chưa hiểu câu hỏi. Bạn có thể nói rõ hơn không?',
       }
       setMessagesByExpert(prev => ({
         ...prev,
@@ -129,7 +129,7 @@ export default function HomePage() {
         ...prev,
         [activeExpert.id]: [
           ...nextMessages,
-          { role: 'assistant', content: 'ÄÃ£ xáº£y ra lá»i káº¿t ná»i. Vui lÃ²ng thá»­ láº¡i sau! ð' },
+          { role: 'assistant', content: 'Đã xảy ra lỗi kết nối. Vui lòng thử lại sau! 🙏' },
         ],
       }))
     } finally {
@@ -153,22 +153,22 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
 
-      {/* ââ Hero tagline ââ */}
+      {/* ── Hero tagline ── */}
       <div className="text-center pt-10 pb-6 px-4">
         <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs text-gray-400 mb-4">
           <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-          CÃ¡c chuyÃªn gia AI Äang trá»±c tuyáº¿n
+          Các chuyên gia AI đang trực tuyến
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-          Há»i chuyÃªn gia xe
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400"> báº±ng AI</span>
+          H�n�� chuyên gia xe
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400"> bằng AI</span>
         </h1>
         <p className="text-gray-400 text-sm max-w-md mx-auto">
-          Chá»n chuyÃªn gia phÃ¹ há»£p vÃ  Äáº·t cÃ¢u há»i â nháº­n tÆ° váº¥n dá»±a trÃªn dá»¯ liá»u xe thá»±c táº¯ táº¡i Viá»t Nam
+          Chọn chuyên gia phù hợp và đặt câu hỏi — nhận tư vấn dựa trên dữ liệu xe thực tế tại Việt Nam
         </p>
       </div>
 
-      {/* ââ Expert selector ââ */}
+      {/* ── Expert selector ── */}
       <div className="max-w-3xl mx-auto w-full px-4 mb-4">
         <div className="grid grid-cols-3 gap-3">
           {EXPERTS.map(expert => {
@@ -201,7 +201,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ââ Chat window ââ */}
+      {/* ── Chat window ── */}
       <div className="flex-1 max-w-3xl mx-auto w-full px-4 flex flex-col">
         {/* Chat card */}
         <div
@@ -217,7 +217,7 @@ export default function HomePage() {
             </div>
             <div className="ml-auto flex items-center gap-1.5 text-xs text-green-400">
               <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-              Trá»±c tuyáº¿n
+              Trực tuyến
             </div>
           </div>
 
@@ -259,7 +259,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ââ Suggestion chips (shown only on empty chat) ââ */}
+        {/* ── Suggestion chips (shown only on empty chat) ── */}
         {messages.length === 0 && (
           <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
             {activeExpert.chips.map(chip => (
@@ -275,7 +275,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* ââ Input bar ââ */}
+        {/* ── Input bar ── */}
         <div className="mt-3 mb-8 flex gap-2 items-end">
           <div className="flex-1">
             <textarea
