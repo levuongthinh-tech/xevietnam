@@ -9,6 +9,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl">🚘</span>
@@ -22,6 +23,8 @@ export default function Header() {
           <Link href="/o-to" className="hover:text-red-600 transition">Ô tô</Link>
           <Link href="/xe-may" className="hover:text-red-600 transition">Xe máy</Link>
           <Link href="/so-sanh" className="hover:text-red-600 transition">So sánh</Link>
+          <Link href="/tinh-gia" className="hover:text-red-600 transition">Tính giá</Link>
+          <Link href="/tinh-tra-gop" className="hover:text-red-600 transition">Trả góp</Link>
           <Link href="/tu-van" className="bg-red-600 text-white px-4 py-1.5 rounded-full hover:bg-red-700 transition">
             Tư vấn AI
           </Link>
@@ -48,6 +51,8 @@ export default function Header() {
           <Link href="/o-to" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Ô tô</Link>
           <Link href="/xe-may" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Xe máy</Link>
           <Link href="/so-sanh" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">So sánh xe</Link>
+          <Link href="/tinh-gia" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Tính giá lăn bánh</Link>
+          <Link href="/tinh-tra-gop" onClick={() => setOpen(false)} className="text-gray-700 hover:text-red-600">Tính trả góp</Link>
           <Link href="/tu-van" onClick={() => setOpen(false)} className="text-red-600 font-semibold">Tư vấn AI</Link>
         </div>
       )}
